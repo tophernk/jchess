@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class JChessController {
 
     @Autowired
-    private ChessConfigurationService configurationService;
+    private ChessFenService fenService;
 
     @RequestMapping("/fenout")
     public @ResponseBody String fenOut() {
-        return configurationService.exportFen(new ChessConfiguration("dummy"));
+        return fenService.exportFen(new ChessConfiguration());
     }
 
 }

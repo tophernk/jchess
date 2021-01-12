@@ -1,6 +1,6 @@
 package de.cj.jchess;
 
-public enum ChessColor {
+public enum ChessPieceColor {
     BLACK,
     WHITE
 }

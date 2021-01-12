@@ -9,22 +9,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class ChessConfigurationServiceTest {
+class ChessFenServiceTest {
 
     @Autowired
-    private ChessConfigurationService chessConfigurationService;
+    private ChessFenService fenService;
 
     @Test
     void createConfiguration() {
-        ChessConfiguration configuration = chessConfigurationService.createConfiguration("test");
+        ChessConfiguration configuration = fenService.importFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 0");
 
         assertNotNull(configuration);
     }
 
     @Test
     void exportFen() {
-        ChessConfiguration configuration = new ChessConfiguration("test");
-        String fen = chessConfigurationService.exportFen(configuration);
+        ChessConfiguration configuration = new ChessConfiguration();
+        String fen = fenService.exportFen(configuration);
 
         assertNotNull(fen);
     }
