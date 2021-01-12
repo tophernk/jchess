@@ -1,9 +1,15 @@
 package de.cj.jchess;
 
+import org.springframework.data.annotation.Id;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class ChessConfiguration {
+
+    @Id
+    private String id;
+
     private Map<String, ChessPiece> pieces = new HashMap<>();
 
     private boolean checkWhite;
@@ -88,5 +94,9 @@ public class ChessConfiguration {
 
     public void setPieces(Map<String, ChessPiece> pieces) {
         this.pieces = pieces;
+    }
+
+    public String getId() {
+        return id;
     }
 }

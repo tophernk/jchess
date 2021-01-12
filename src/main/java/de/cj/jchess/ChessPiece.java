@@ -5,6 +5,9 @@ public class ChessPiece {
     private ChessPieceType pieceType;
     private ChessPieceColor pieceColor;
 
+    public ChessPiece() {
+    }
+
     public ChessPiece(ChessPieceType type, ChessPieceColor color) {
         this.pieceType = type;
         this.pieceColor = color;

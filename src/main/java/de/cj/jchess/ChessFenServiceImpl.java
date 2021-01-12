@@ -2,21 +2,24 @@ package de.cj.jchess;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ChessFenServiceImpl implements ChessFenService {
 
     private static final Logger logger = LoggerFactory.getLogger(ChessFenServiceImpl.class);
-
     private static final char FEN_SEPARATOR = ' ';
     private static final char FEN_SEPARATOR_RANK = '/';
+
+    @Autowired
+    private ChessConfigurationRepository repository;
 
     @Override
     public ChessConfiguration importFen(String fen) {
         int x = 0;
         int rank = 0;
-        int seperatorIndex = 0;
+        int separatorIndex = 0;
 
         ChessConfiguration result = new ChessConfiguration();
 
@@ -28,44 +31,49 @@ public class ChessFenServiceImpl implements ChessFenService {
                 continue;
             }
             if (value == FEN_SEPARATOR) {
-                seperatorIndex++;
+                separatorIndex++;
                 continue;
             }
-            if (isPiece(value, x, rank, seperatorIndex)) {
+            if (isPiece(value, x, rank, separatorIndex)) {
                 ChessPiece piece = createPiece(value);
                 result.getPieces().put(determinePiecePositionBasedOnFenPosition(rank, x), piece);
                 x++;
                 continue;
             }
-            if (seperatorIndex == 1) {
+            if (separatorIndex == 1) {
                 // turn color
                 result.setTurnColor(parseTurnColor(value));
             }
-            if (seperatorIndex == 2) {
+            if (separatorIndex == 2) {
                 // castles
                 parseCastles(value, result);
             }
-            if (seperatorIndex == 3) {
+            if (separatorIndex == 3) {
                 // en passant
                 result.setEnPassant(result.getEnPassant() + value);
                 continue;
             }
-            if (seperatorIndex == 4) {
+            if (separatorIndex == 4) {
                 // meta: half move #
                 continue;
             }
-            if (seperatorIndex == 5) {
+            if (separatorIndex == 5) {
                 // meta: full move #
                 continue;
             }
             logger.error("FEN import: undefined value");
         }
-        return result;
+        return repository.insert(result);
     }
 
     @Override
     public String exportFen(ChessConfiguration configuration) {
         return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 0";
+    }
+
+    @Override
+    public ChessConfiguration findConfigurationById(String id) {
+        return repository.findChessConfigurationById(id);
     }
 
     private ChessPiece createPiece(char value) {
@@ -74,8 +82,8 @@ public class ChessFenServiceImpl implements ChessFenService {
         return new ChessPiece(pieceType, pieceColor);
     }
 
-    private boolean isPiece(char fenValue, int x, int rank, int seperatorIndex) {
-        return !Character.isDigit(fenValue) && seperatorIndex == 0 && rank < 8 && x < 8;
+    private boolean isPiece(char fenValue, int x, int rank, int separatorIndex) {
+        return !Character.isDigit(fenValue) && separatorIndex == 0 && rank < 8 && x < 8;
     }
 
     private ChessPieceColor parseTurnColor(char value) {
