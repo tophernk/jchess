@@ -17,4 +17,6 @@ RUN sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > \
     /etc/apt/sources.list.d/jenkins.list'
 RUN apt-get update
 RUN apt-get install -y jenkins
+RUN useradd jenkins
+USER jenkins
 ENTRYPOINT java -jar /usr/share/jenkins/jenkins.war
