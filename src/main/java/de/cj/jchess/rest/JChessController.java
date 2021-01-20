@@ -1,5 +1,7 @@
-package de.cj.jchess;
+package de.cj.jchess.rest;
 
+import de.cj.jchess.entity.ChessConfiguration;
+import de.cj.jchess.service.ChessFenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

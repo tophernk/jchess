@@ -1,5 +1,9 @@
-package de.cj.jchess;
+package de.cj.jchess.service.impl;
 
+import de.cj.jchess.dao.MongoChessConfigurationRepository;
+import de.cj.jchess.entity.*;
+import de.cj.jchess.service.ChessFenService;
+import de.cj.jchess.service.mapper.ChessConfigurationMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +25,7 @@ public class ChessFenServiceImpl implements ChessFenService {
         int rank = 0;
         int separatorIndex = 0;
 
-        MongoChessConfiguration result = new MongoChessConfiguration();
+        ChessConfiguration result = new ChessConfiguration();
 
         for (int i = 0; i < fen.length(); i++) {
             char value = fen.charAt(i);
@@ -63,7 +67,12 @@ public class ChessFenServiceImpl implements ChessFenService {
             }
             logger.error("FEN import: undefined value");
         }
-        return repository.insert(result);
+
+        MongoChessConfiguration mongoChessConfiguration = ChessConfigurationMapper.INSTANCE.chessConfigurationToMongo(result);
+        MongoChessConfiguration insert = repository.insert(mongoChessConfiguration);
+        result.setId(insert.getId());
+
+        return result;
     }
 
     @Override
@@ -73,7 +82,8 @@ public class ChessFenServiceImpl implements ChessFenService {
 
     @Override
     public ChessConfiguration findConfigurationById(String id) {
-        return repository.findChessConfigurationById(id);
+        MongoChessConfiguration chessConfigurationById = repository.findChessConfigurationById(id);
+        return ChessConfigurationMapper.INSTANCE.mongoToChessConfiguration(chessConfigurationById);
     }
 
     private ChessPiece createPiece(char value) {

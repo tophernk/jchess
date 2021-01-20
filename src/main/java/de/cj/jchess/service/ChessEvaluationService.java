@@ -1,4 +1,8 @@
-package de.cj.jchess;
+package de.cj.jchess.service;
+
+import de.cj.jchess.entity.ChessConfiguration;
+import de.cj.jchess.entity.ChessMove;
+import de.cj.jchess.entity.ChessPieceColor;
 
 import java.util.List;
 

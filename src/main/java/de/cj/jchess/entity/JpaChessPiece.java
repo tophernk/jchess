@@ -1,4 +1,8 @@
-package de.cj.jchess;
+package de.cj.jchess.entity;
+
+import de.cj.jchess.entity.ChessPiece;
+import de.cj.jchess.entity.ChessPieceColor;
+import de.cj.jchess.entity.ChessPieceType;
 
 import javax.persistence.*;
 

@@ -1,4 +1,7 @@
-package de.cj.jchess;
+package de.cj.jchess.service;
+
+import de.cj.jchess.entity.ChessConfiguration;
+import de.cj.jchess.entity.ChessMove;
 
 public interface ChessMoveService {
 
