@@ -1,13 +1,12 @@
 package de.cj.jchess.entity;
 
-import de.cj.jchess.entity.ChessPiece;
-import de.cj.jchess.entity.ChessPieceColor;
-import de.cj.jchess.entity.ChessPieceType;
+import lombok.Data;
 
 import javax.persistence.*;
 
 @Entity
-public class JpaChessPiece implements ChessPiece {
+@Data
+public class JpaChessPiece {
 
     @Enumerated(EnumType.STRING)
     private ChessPieceType pieceType;
@@ -19,37 +18,4 @@ public class JpaChessPiece implements ChessPiece {
     @GeneratedValue
     private int id;
 
-    public JpaChessPiece() {
-    }
-
-    public JpaChessPiece(ChessPieceType type, ChessPieceColor color) {
-        this.pieceType = type;
-        this.pieceColor = color;
-    }
-
-    @Override
-    public ChessPieceColor getPieceColor() {
-        return pieceColor;
-    }
-
-    @Override
-    public ChessPieceType getPieceType() {
-        return pieceType;
-    }
-
-    public void setPieceType(ChessPieceType pieceType) {
-        this.pieceType = pieceType;
-    }
-
-    public void setPieceColor(ChessPieceColor pieceColor) {
-        this.pieceColor = pieceColor;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
-    }
 }

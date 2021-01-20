@@ -1,8 +1,16 @@
 package de.cj.jchess.entity;
 
-public interface ChessPiece {
+import lombok.Builder;
+import lombok.Data;
 
-    ChessPieceColor getPieceColor();
+@Data
+@Builder
+public class ChessPiece {
 
-    ChessPieceType getPieceType();
+    private ChessPieceType pieceType;
+
+    private ChessPieceColor pieceColor;
+
+    private int id;
+
 }

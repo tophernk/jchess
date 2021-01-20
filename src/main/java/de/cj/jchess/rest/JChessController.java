@@ -15,7 +15,7 @@ public class JChessController {
     @PostMapping("/fenin")
     public @ResponseBody String fenIn(@RequestParam String fen) {
         ChessConfiguration chessConfiguration = fenService.importFen(fen);
-        return "fenin: OK";
+        return chessConfiguration != null ? chessConfiguration.getId() : "fenin: not OK";
     }
 
     @GetMapping("/fenout")

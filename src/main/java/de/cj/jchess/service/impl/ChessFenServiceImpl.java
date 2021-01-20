@@ -17,6 +17,9 @@ public class ChessFenServiceImpl implements ChessFenService {
     private static final char FEN_SEPARATOR_RANK = '/';
 
     @Autowired
+    private ChessConfigurationMapper chessConfigurationMapper;
+
+    @Autowired
     private MongoChessConfigurationRepository repository;
 
     @Override
@@ -68,7 +71,7 @@ public class ChessFenServiceImpl implements ChessFenService {
             logger.error("FEN import: undefined value");
         }
 
-        MongoChessConfiguration mongoChessConfiguration = ChessConfigurationMapper.INSTANCE.chessConfigurationToMongo(result);
+        MongoChessConfiguration mongoChessConfiguration = chessConfigurationMapper.chessConfigurationToMongo(result);
         MongoChessConfiguration insert = repository.insert(mongoChessConfiguration);
         result.setId(insert.getId());
 
@@ -83,13 +86,13 @@ public class ChessFenServiceImpl implements ChessFenService {
     @Override
     public ChessConfiguration findConfigurationById(String id) {
         MongoChessConfiguration chessConfigurationById = repository.findChessConfigurationById(id);
-        return ChessConfigurationMapper.INSTANCE.mongoToChessConfiguration(chessConfigurationById);
+        return chessConfigurationMapper.mongoToChessConfiguration(chessConfigurationById);
     }
 
     private ChessPiece createPiece(char value) {
         ChessPieceType pieceType = determinePieceType(value);
         ChessPieceColor pieceColor = Character.isUpperCase(value) ? ChessPieceColor.WHITE : ChessPieceColor.BLACK;
-        return new JpaChessPiece(pieceType, pieceColor);
+        return ChessPiece.builder().pieceType(pieceType).pieceColor(pieceColor).build();
     }
 
     private boolean isPiece(char fenValue, int x, int rank, int separatorIndex) {
