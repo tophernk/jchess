@@ -1,16 +1,20 @@
 package de.cj.jchess.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 @Data
+@Builder
+@AllArgsConstructor
 public class ChessConfiguration {
 
     private String id;
 
-    private Map<String, ChessPiece> pieces = new HashMap<>();
+    private Set<ChessPiece> whitePieces;
+    private Set<ChessPiece> blackPieces;
 
     private boolean checkWhite;
     private boolean checkBlack;
@@ -22,6 +26,6 @@ public class ChessConfiguration {
     private boolean longCastlesBlack;
 
     private ChessPieceColor turnColor;
-    private String enPassant = "";
+    private ChessPiecePosition enPassant;
 
 }

@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Service
 public class ChessFenServiceImpl implements ChessFenService {
 
@@ -25,16 +28,19 @@ public class ChessFenServiceImpl implements ChessFenService {
     @Override
     public ChessConfiguration importFen(String fen) {
         int x = 0;
-        int rank = 0;
+        int rank = 8;
         int separatorIndex = 0;
 
-        ChessConfiguration result = new ChessConfiguration();
+        ChessConfiguration.ChessConfigurationBuilder configurationBuilder = ChessConfiguration.builder();
+        Set<ChessPiece> whitePieces = new HashSet<>();
+        Set<ChessPiece> blackPieces = new HashSet<>();
+        StringBuilder enPassant = new StringBuilder();
 
         for (int i = 0; i < fen.length(); i++) {
             char value = fen.charAt(i);
             if (value == FEN_SEPARATOR_RANK) {
                 x = 0;
-                rank++;
+                rank--;
                 continue;
             }
             if (value == FEN_SEPARATOR) {
@@ -42,22 +48,26 @@ public class ChessFenServiceImpl implements ChessFenService {
                 continue;
             }
             if (isPiece(value, x, rank, separatorIndex)) {
-                ChessPiece piece = createPiece(value);
-                result.getPieces().put(determinePiecePositionBasedOnFenPosition(rank, x), piece);
+                ChessPiece piece = createPiece(value, rank, x);
+                if (piece.getPieceColor() == ChessPieceColor.BLACK) {
+                    blackPieces.add(piece);
+                } else {
+                    whitePieces.add(piece);
+                }
                 x++;
                 continue;
             }
             if (separatorIndex == 1) {
                 // turn color
-                result.setTurnColor(parseTurnColor(value));
+                configurationBuilder.turnColor(parseTurnColor(value));
             }
             if (separatorIndex == 2) {
                 // castles
-                parseCastles(value, result);
+                parseCastles(value, configurationBuilder);
             }
             if (separatorIndex == 3) {
                 // en passant
-                result.setEnPassant(result.getEnPassant() + value);
+                enPassant.append(value);
                 continue;
             }
             if (separatorIndex == 4) {
@@ -70,6 +80,13 @@ public class ChessFenServiceImpl implements ChessFenService {
             }
             logger.error("FEN import: undefined value");
         }
+        configurationBuilder.whitePieces(whitePieces);
+        configurationBuilder.blackPieces(blackPieces);
+        if (!enPassant.toString().equals("-")) {
+            configurationBuilder.enPassant(ChessPiecePosition.valueOf(enPassant.toString().toUpperCase()));
+        }
+
+        ChessConfiguration result = configurationBuilder.build();
 
         MongoChessConfiguration mongoChessConfiguration = chessConfigurationMapper.chessConfigurationToMongo(result);
         MongoChessConfiguration insert = repository.insert(mongoChessConfiguration);
@@ -86,36 +103,41 @@ public class ChessFenServiceImpl implements ChessFenService {
     @Override
     public ChessConfiguration findConfigurationById(String id) {
         MongoChessConfiguration chessConfigurationById = repository.findChessConfigurationById(id);
+        if (chessConfigurationById.getEnPassant().isEmpty()) {
+            chessConfigurationById.setEnPassant(null);
+        }
         return chessConfigurationMapper.mongoToChessConfiguration(chessConfigurationById);
     }
 
-    private ChessPiece createPiece(char value) {
-        ChessPieceType pieceType = determinePieceType(value);
-        ChessPieceColor pieceColor = Character.isUpperCase(value) ? ChessPieceColor.WHITE : ChessPieceColor.BLACK;
-        return ChessPiece.builder().pieceType(pieceType).pieceColor(pieceColor).build();
+    private ChessPiece createPiece(char value, int rank, int x) {
+        return ChessPiece.builder()
+                .pieceType(determinePieceType(value))
+                .pieceColor(Character.isUpperCase(value) ? ChessPieceColor.WHITE : ChessPieceColor.BLACK)
+                .position(determinePiecePositionBasedOnFenPosition(rank, x))
+                .build();
     }
 
     private boolean isPiece(char fenValue, int x, int rank, int separatorIndex) {
-        return !Character.isDigit(fenValue) && separatorIndex == 0 && rank < 8 && x < 8;
+        return !Character.isDigit(fenValue) && separatorIndex == 0 && rank > 0 && x < 8;
     }
 
     private ChessPieceColor parseTurnColor(char value) {
         return value == 'b' ? ChessPieceColor.BLACK : ChessPieceColor.WHITE;
     }
 
-    private void parseCastles(char value, ChessConfiguration result) {
+    private void parseCastles(char value, ChessConfiguration.ChessConfigurationBuilder builder) {
         switch (value) {
             case 'K':
-                result.setShortCastlesWhite(true);
+                builder.shortCastlesWhite(true);
                 break;
             case 'Q':
-                result.setLongCastlesWhite(true);
+                builder.longCastlesWhite(true);
                 break;
             case 'k':
-                result.setShortCastlesBlack(true);
+                builder.shortCastlesBlack(true);
                 break;
             case 'q':
-                result.setLongCastlesBlack(true);
+                builder.longCastlesBlack(true);
                 break;
             default:
                 break;
@@ -140,8 +162,7 @@ public class ChessFenServiceImpl implements ChessFenService {
         throw new IllegalArgumentException("ChessPieceType: invalid FEN value");
     }
 
-    public String determinePiecePositionBasedOnFenPosition(int rank, int x) {
-        // TODO: 12.01.21
-        return "" + rank + x;
+    public ChessPiecePosition determinePiecePositionBasedOnFenPosition(int rank, int x) {
+        return ChessPiecePosition.retrievePosition((char) (x + 65), rank);
     }
 }

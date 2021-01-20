@@ -3,8 +3,7 @@ package de.cj.jchess.entity;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 @Data
 public class MongoChessConfiguration {
@@ -12,7 +11,8 @@ public class MongoChessConfiguration {
     @Id
     private String id;
 
-    private Map<String, ChessPiece> pieces = new HashMap<>();
+    private Set<ChessPiece> whitePieces;
+    private Set<ChessPiece> blackPieces;
 
     private boolean checkWhite;
     private boolean checkBlack;

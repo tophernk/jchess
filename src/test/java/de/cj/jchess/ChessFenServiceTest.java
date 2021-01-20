@@ -27,7 +27,7 @@ class ChessFenServiceTest {
 
     @Test
     void exportFen() {
-        ChessConfiguration configuration = new ChessConfiguration();
+        ChessConfiguration configuration = ChessConfiguration.builder().build();
         String fen = fenService.exportFen(configuration);
 
         assertNotNull(fen);
