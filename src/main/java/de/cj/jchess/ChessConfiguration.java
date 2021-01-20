@@ -1,102 +1,39 @@
 package de.cj.jchess;
 
-import org.springframework.data.annotation.Id;
-
-import java.util.HashMap;
 import java.util.Map;
 
-public class ChessConfiguration {
+public interface ChessConfiguration {
+    boolean isCheckWhite();
 
-    @Id
-    private String id;
+    void setCheckWhite(boolean checkWhite);
 
-    private Map<String, ChessPiece> pieces = new HashMap<>();
+    boolean isCheckBlack();
 
-    private boolean checkWhite;
-    private boolean checkBlack;
+    void setCheckBlack(boolean checkBlack);
 
-    private boolean shortCastlesWhite;
-    private boolean shortCastlesBlack;
+    boolean isShortCastlesWhite();
 
-    private boolean longCastlesWhite;
-    private boolean longCastlesBlack;
+    void setShortCastlesWhite(boolean shortCastlesWhite);
 
-    private ChessPieceColor turnColor;
-    private String enPassant = "";
+    boolean isShortCastlesBlack();
 
-    public boolean isCheckWhite() {
-        return checkWhite;
-    }
+    void setShortCastlesBlack(boolean shortCastlesBlack);
 
-    public void setCheckWhite(boolean checkWhite) {
-        this.checkWhite = checkWhite;
-    }
+    boolean isLongCastlesWhite();
 
-    public boolean isCheckBlack() {
-        return checkBlack;
-    }
+    void setLongCastlesWhite(boolean longCastlesWhite);
 
-    public void setCheckBlack(boolean checkBlack) {
-        this.checkBlack = checkBlack;
-    }
+    boolean isLongCastlesBlack();
 
-    public boolean isShortCastlesWhite() {
-        return shortCastlesWhite;
-    }
+    void setLongCastlesBlack(boolean longCastlesBlack);
 
-    public void setShortCastlesWhite(boolean shortCastlesWhite) {
-        this.shortCastlesWhite = shortCastlesWhite;
-    }
+    ChessPieceColor getTurnColor();
 
-    public boolean isShortCastlesBlack() {
-        return shortCastlesBlack;
-    }
+    void setTurnColor(ChessPieceColor turnColor);
 
-    public void setShortCastlesBlack(boolean shortCastlesBlack) {
-        this.shortCastlesBlack = shortCastlesBlack;
-    }
+    String getEnPassant();
 
-    public boolean isLongCastlesWhite() {
-        return longCastlesWhite;
-    }
+    void setEnPassant(String enPassant);
 
-    public void setLongCastlesWhite(boolean longCastlesWhite) {
-        this.longCastlesWhite = longCastlesWhite;
-    }
-
-    public boolean isLongCastlesBlack() {
-        return longCastlesBlack;
-    }
-
-    public void setLongCastlesBlack(boolean longCastlesBlack) {
-        this.longCastlesBlack = longCastlesBlack;
-    }
-
-    public ChessPieceColor getTurnColor() {
-        return turnColor;
-    }
-
-    public void setTurnColor(ChessPieceColor turnColor) {
-        this.turnColor = turnColor;
-    }
-
-    public String getEnPassant() {
-        return enPassant;
-    }
-
-    public void setEnPassant(String enPassant) {
-        this.enPassant = enPassant;
-    }
-
-    public Map<String, ChessPiece> getPieces() {
-        return pieces;
-    }
-
-    public void setPieces(Map<String, ChessPiece> pieces) {
-        this.pieces = pieces;
-    }
-
-    public String getId() {
-        return id;
-    }
+    Map<String, ChessPiece> getPieces();
 }

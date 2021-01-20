@@ -1,23 +1,8 @@
 package de.cj.jchess;
 
-public class ChessPiece {
+public interface ChessPiece {
 
-    private ChessPieceType pieceType;
-    private ChessPieceColor pieceColor;
+    ChessPieceColor getPieceColor();
 
-    public ChessPiece() {
-    }
-
-    public ChessPiece(ChessPieceType type, ChessPieceColor color) {
-        this.pieceType = type;
-        this.pieceColor = color;
-    }
-
-    public ChessPieceColor getPieceColor() {
-        return pieceColor;
-    }
-
-    public ChessPieceType getPieceType() {
-        return pieceType;
-    }
+    ChessPieceType getPieceType();
 }

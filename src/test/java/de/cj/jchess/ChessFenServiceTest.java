@@ -24,7 +24,7 @@ class ChessFenServiceTest {
 
     @Test
     void exportFen() {
-        ChessConfiguration configuration = new ChessConfiguration();
+        ChessConfiguration configuration = new MongoChessConfiguration();
         String fen = fenService.exportFen(configuration);
 
         assertNotNull(fen);
@@ -33,7 +33,7 @@ class ChessFenServiceTest {
     @Test
     void findConfigurationById() {
         ChessConfiguration inConfiguration = fenService.importFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 0");
-        ChessConfiguration outConfiguration = fenService.findConfigurationById(inConfiguration.getId());
+        ChessConfiguration outConfiguration = fenService.findConfigurationById(((MongoChessConfiguration) inConfiguration).getId());
         Assertions.assertThat(inConfiguration).isEqualToComparingFieldByFieldRecursively(outConfiguration);
     }
 }

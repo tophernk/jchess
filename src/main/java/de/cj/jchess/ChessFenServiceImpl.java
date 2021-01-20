@@ -13,7 +13,7 @@ public class ChessFenServiceImpl implements ChessFenService {
     private static final char FEN_SEPARATOR_RANK = '/';
 
     @Autowired
-    private ChessConfigurationRepository repository;
+    private MongoChessConfigurationRepository repository;
 
     @Override
     public ChessConfiguration importFen(String fen) {
@@ -21,7 +21,7 @@ public class ChessFenServiceImpl implements ChessFenService {
         int rank = 0;
         int separatorIndex = 0;
 
-        ChessConfiguration result = new ChessConfiguration();
+        MongoChessConfiguration result = new MongoChessConfiguration();
 
         for (int i = 0; i < fen.length(); i++) {
             char value = fen.charAt(i);
@@ -79,7 +79,7 @@ public class ChessFenServiceImpl implements ChessFenService {
     private ChessPiece createPiece(char value) {
         ChessPieceType pieceType = determinePieceType(value);
         ChessPieceColor pieceColor = Character.isUpperCase(value) ? ChessPieceColor.WHITE : ChessPieceColor.BLACK;
-        return new ChessPiece(pieceType, pieceColor);
+        return new JpaChessPiece(pieceType, pieceColor);
     }
 
     private boolean isPiece(char fenValue, int x, int rank, int separatorIndex) {

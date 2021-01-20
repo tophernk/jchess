@@ -13,13 +13,13 @@ public class JChessController {
     @PostMapping("/fenin")
     public @ResponseBody String fenIn(@RequestParam String fen) {
         ChessConfiguration chessConfiguration = fenService.importFen(fen);
-        return chessConfiguration.getId();
+        return "fenin: OK";
     }
 
     @GetMapping("/fenout")
     public @ResponseBody String fenOut(@RequestParam String id) {
         ChessConfiguration configuration = fenService.findConfigurationById(id);
-        return configuration != null ? fenService.exportFen(new ChessConfiguration()) : "configuration not found";
+        return configuration != null ? fenService.exportFen(configuration) : "fenout: not found";
     }
 
 }
