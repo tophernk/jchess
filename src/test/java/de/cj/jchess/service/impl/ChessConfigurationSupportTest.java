@@ -46,4 +46,23 @@ class ChessConfigurationSupportTest {
         assertThat(blackPawn).hasOnlyAvailablePositions(ChessPiecePosition.A5);
     }
 
+    @Test
+    void whitePawnEnPassant() {
+        ChessPiece whitePawn = ChessPiece.builder().pieceType(ChessPieceType.PAWN).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.B5).availablePositions(new HashSet<>()).build();
+        ChessPiece blackPawn = ChessPiece.builder().pieceType(ChessPieceType.PAWN).pieceColor(ChessPieceColor.BLACK).position(ChessPiecePosition.C5).availablePositions(new HashSet<>()).build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder().whitePieces(Set.of(whitePawn)).blackPieces(Set.of(blackPawn)).enPassant(ChessPiecePosition.C6).build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whitePawn).hasOnlyAvailablePositions(ChessPiecePosition.B6, ChessPiecePosition.C6);
+    }
+
+    @Test
+    void blackPawnEnPassant() {
+        ChessPiece whitePawn = ChessPiece.builder().pieceType(ChessPieceType.PAWN).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.C4).availablePositions(new HashSet<>()).build();
+        ChessPiece blackPawn = ChessPiece.builder().pieceType(ChessPieceType.PAWN).pieceColor(ChessPieceColor.BLACK).position(ChessPiecePosition.D4).availablePositions(new HashSet<>()).build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder().whitePieces(Set.of(whitePawn)).blackPieces(Set.of(blackPawn)).enPassant(ChessPiecePosition.C3).build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(blackPawn).hasOnlyAvailablePositions(ChessPiecePosition.C3, ChessPiecePosition.D3);
+    }
 }

@@ -24,7 +24,7 @@ public class ChessConfigurationSupport {
 
             switch (piece.getPieceType()) {
                 case PAWN:
-                    determinePawnMove(piece, pieces);
+                    determinePawnMove(piece, pieces, configuration.getEnPassant());
                     break;
                 default:
                     break;
@@ -32,12 +32,11 @@ public class ChessConfigurationSupport {
         }
     }
 
-    private void determinePawnMove(ChessPiece pawn, Set<ChessPiece> pieces) {
+    private void determinePawnMove(ChessPiece pawn, Set<ChessPiece> pieces, ChessPiecePosition enPassant) {
         ChessPiecePosition position = pawn.getPosition();
         boolean isWhitePiece = pawn.getPieceColor() == ChessPieceColor.WHITE;
         int direction = isWhitePiece ? 1 : -1;
         int startRank = isWhitePiece ? 2 : 7;
-        int enPassantRank = isWhitePiece ? 5 : 4;
         ChessPieceColor oppositeColor = isWhitePiece ? ChessPieceColor.BLACK : ChessPieceColor.WHITE;
 
         int pawnRank = position.getRank();
@@ -52,8 +51,9 @@ public class ChessConfigurationSupport {
             }
         }
         // en passant
-        // TODO: 20.01.21
-
+        if (isEnPassantPossible(enPassant, position, direction)) {
+            pawn.getAvailablePositions().add(enPassant);
+        }
         // standard pawn move
         if (pieces.stream().map(ChessPiece::getPosition).noneMatch(p -> p == singleMovePosition)) {
             pawn.getAvailablePositions().add(singleMovePosition);
@@ -61,6 +61,11 @@ public class ChessConfigurationSupport {
         // takes left and right
 
 
+    }
+
+    private boolean isEnPassantPossible(ChessPiecePosition enPassant, ChessPiecePosition position, int direction) {
+        return enPassant != null && Math.abs(enPassant.getFile() - position.getFile()) == 1
+                && enPassant.getRank() - position.getRank() == direction;
     }
 
 }
