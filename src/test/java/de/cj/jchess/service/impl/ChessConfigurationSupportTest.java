@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -84,5 +85,14 @@ class ChessConfigurationSupportTest {
         chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
 
         assertThat(blackPawn).hasOnlyAvailablePositions(ChessPiecePosition.F3, ChessPiecePosition.G3);
+    }
+
+    @Test
+    void knightMoves() {
+        ChessPiece whiteKnight = ChessPiece.builder().pieceType(ChessPieceType.KNIGHT).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.D4).availablePositions(new HashSet<>()).build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder().whitePieces(Set.of(whiteKnight)).blackPieces(Collections.emptySet()).build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whiteKnight).hasOnlyAvailablePositions(ChessPiecePosition.E6, ChessPiecePosition.F5, ChessPiecePosition.F3, ChessPiecePosition.E2, ChessPiecePosition.C2, ChessPiecePosition.B3, ChessPiecePosition.B5, ChessPiecePosition.C6);
     }
 }

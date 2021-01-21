@@ -26,8 +26,28 @@ public class ChessConfigurationSupport {
                 case PAWN:
                     determinePawnMove(piece, pieces, configuration.getEnPassant());
                     break;
+                case KNIGHT:
+                    determineKnightMove(piece, pieces);
+                    break;
                 default:
                     break;
+            }
+        }
+    }
+
+    private void determineKnightMove(ChessPiece piece, Set<ChessPiece> pieces) {
+        // test L shape moves clockwise
+        int[] fileOffset = {1, 2, 2, 1, -1, -2, -2, -1};
+        int[] rankOffset = {-2, -1, 1, 2, 2, 1, -1, -2};
+
+        for (int i = 0; i < 8; i++) {
+            char targetFile = (char) (piece.getPosition().getFile() + fileOffset[i]);
+            int targetRank = piece.getPosition().getRank() + rankOffset[i];
+            if (isFileInBounds(targetFile) && isRankInBounds(targetRank)) {
+                ChessPiecePosition targetPosition = ChessPiecePosition.retrievePosition(targetFile, targetRank);
+                if (isTargetFree(pieces, targetPosition) || isTargetOccupiedByOpponent(piece, pieces, targetPosition)) {
+                    piece.getAvailablePositions().add(targetPosition);
+                }
             }
         }
     }
@@ -37,7 +57,6 @@ public class ChessConfigurationSupport {
         boolean isWhitePiece = pawn.getPieceColor() == ChessPieceColor.WHITE;
         int direction = isWhitePiece ? 1 : -1;
         int startRank = isWhitePiece ? 2 : 7;
-        ChessPieceColor oppositeColor = isWhitePiece ? ChessPieceColor.BLACK : ChessPieceColor.WHITE;
         int pawnRank = position.getRank();
 
         // double forward move from starting position
@@ -60,9 +79,9 @@ public class ChessConfigurationSupport {
         // takes left and right
         int takesFile = position.getFile() + 1;
         for (int i = 0; i < 2; i++) {
-            if (takesFile >= 'A' && takesFile <= 'H') {
+            if (isFileInBounds(takesFile)) {
                 ChessPiecePosition targetPosition = ChessPiecePosition.retrievePosition((char) takesFile, singleMovePosition.getRank());
-                if (isTargetOccupiedByOpponent(pieces, targetPosition, oppositeColor)) {
+                if (isTargetOccupiedByOpponent(pawn, pieces, targetPosition)) {
                     pawn.getAvailablePositions().add(ChessPiecePosition.retrievePosition((char) takesFile, singleMovePosition.getRank()));
                 }
             }
@@ -70,10 +89,24 @@ public class ChessConfigurationSupport {
         }
     }
 
-    private boolean isTargetOccupiedByOpponent(Set<ChessPiece> pieces, ChessPiecePosition targetPosition, ChessPieceColor oppositeColor) {
+    private boolean isRankInBounds(int targetRank) {
+        return targetRank >= 1 && targetRank <= 8;
+    }
+
+    private boolean isFileInBounds(int takesFile) {
+        return takesFile >= 'A' && takesFile <= 'H';
+    }
+
+    private boolean isTargetOccupiedByOpponent(ChessPiece piece, Set<ChessPiece> pieces, ChessPiecePosition targetPosition) {
         return pieces.stream()
                 .filter(p -> p.getPosition() == targetPosition)
-                .map(ChessPiece::getPieceColor).anyMatch(c -> c == oppositeColor);
+                .map(ChessPiece::getPieceColor).anyMatch(c -> c != piece.getPieceColor());
+    }
+
+    private boolean isTargetFree(Set<ChessPiece> pieces, ChessPiecePosition targetPosition) {
+        return pieces.stream()
+                .map(ChessPiece::getPosition)
+                .noneMatch(p -> p == targetPosition);
     }
 
     private boolean isEnPassantPossible(ChessPiecePosition enPassant, ChessPiecePosition position, int direction) {
