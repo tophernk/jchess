@@ -37,7 +37,7 @@ public class ChessConfigurationSupport {
         boolean isWhitePiece = pawn.getPieceColor() == ChessPieceColor.WHITE;
         int direction = isWhitePiece ? 1 : -1;
         int startRank = isWhitePiece ? 2 : 7;
-        int enpassantRank = isWhitePiece ? 5 : 4;
+        int enPassantRank = isWhitePiece ? 5 : 4;
         ChessPieceColor oppositeColor = isWhitePiece ? ChessPieceColor.BLACK : ChessPieceColor.WHITE;
 
         int pawnRank = position.getRank();
