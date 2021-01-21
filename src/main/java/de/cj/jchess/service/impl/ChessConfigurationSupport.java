@@ -24,10 +24,13 @@ public class ChessConfigurationSupport {
 
             switch (piece.getPieceType()) {
                 case PAWN:
-                    determinePawnMove(piece, pieces, configuration.getEnPassant());
+                    determinePawnMoves(piece, pieces, configuration.getEnPassant());
                     break;
                 case KNIGHT:
-                    determineKnightMove(piece, pieces);
+                    determineKnightMoves(piece, pieces);
+                    break;
+                case BISHOP:
+                    determineBishipMoves(piece, pieces);
                     break;
                 default:
                     break;
@@ -35,7 +38,33 @@ public class ChessConfigurationSupport {
         }
     }
 
-    private void determineKnightMove(ChessPiece piece, Set<ChessPiece> pieces) {
+    private void determineBishipMoves(ChessPiece piece, Set<ChessPiece> pieces) {
+        // test the four diagonals clockwise
+        int[] fileOffset = {1, 1, -1, -1};
+        int[] rankOffset = {-1, 1, 1, -1};
+
+        for (int i = 0; i < 4; i++) {
+            char targetFile = piece.getPosition().getFile();
+            int targetRank = piece.getPosition().getRank();
+            for (int ii = 0; ii < 8; ii++) {
+                targetFile += fileOffset[i];
+                targetRank += rankOffset[i];
+                if (isFileInBounds(targetFile) && isRankInBounds(targetRank)) {
+                    ChessPiecePosition targetPosition = ChessPiecePosition.retrievePosition(targetFile, targetRank);
+                    if (isTargetFree(pieces, targetPosition)) {
+                        piece.getAvailablePositions().add(targetPosition);
+                    } else if (isTargetOccupiedByOpponent(piece, pieces, targetPosition)) {
+                        piece.getAvailablePositions().add(targetPosition);
+                        break;
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private void determineKnightMoves(ChessPiece piece, Set<ChessPiece> pieces) {
         // test L shape moves clockwise
         int[] fileOffset = {1, 2, 2, 1, -1, -2, -2, -1};
         int[] rankOffset = {-2, -1, 1, 2, 2, 1, -1, -2};
@@ -52,7 +81,7 @@ public class ChessConfigurationSupport {
         }
     }
 
-    private void determinePawnMove(ChessPiece pawn, Set<ChessPiece> pieces, ChessPiecePosition enPassant) {
+    private void determinePawnMoves(ChessPiece pawn, Set<ChessPiece> pieces, ChessPiecePosition enPassant) {
         ChessPiecePosition position = pawn.getPosition();
         boolean isWhitePiece = pawn.getPieceColor() == ChessPieceColor.WHITE;
         int direction = isWhitePiece ? 1 : -1;

@@ -115,4 +115,25 @@ class ChessConfigurationSupportTest {
 
         assertThat(whiteKnight).hasOnlyAvailablePositions(ChessPiecePosition.E4, ChessPiecePosition.F3, ChessPiecePosition.B1, ChessPiecePosition.B3, ChessPiecePosition.C4);
     }
+
+    @Test
+    void bishopMoves() {
+        ChessPiece whiteBishop = ChessPiece.builder().pieceType(ChessPieceType.BISHOP).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.D4).availablePositions(new HashSet<>()).build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder().whitePieces(Set.of(whiteBishop)).blackPieces(Collections.emptySet()).build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whiteBishop).hasOnlyAvailablePositions(ChessPiecePosition.A1, ChessPiecePosition.B2, ChessPiecePosition.C3, ChessPiecePosition.E5, ChessPiecePosition.F6, ChessPiecePosition.G7, ChessPiecePosition.H8,
+                ChessPiecePosition.A7, ChessPiecePosition.B6, ChessPiecePosition.C5, ChessPiecePosition.E3, ChessPiecePosition.F2, ChessPiecePosition.G1);
+    }
+
+    @Test
+    void bishopTakes() {
+        ChessPiece whiteBishop = ChessPiece.builder().pieceType(ChessPieceType.BISHOP).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.D4).availablePositions(new HashSet<>()).build();
+        ChessPiece whitePawn = ChessPiece.builder().pieceType(ChessPieceType.PAWN).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.B2).availablePositions(new HashSet<>()).build();
+        ChessPiece blackKnight = ChessPiece.builder().pieceType(ChessPieceType.KNIGHT).pieceColor(ChessPieceColor.BLACK).position(ChessPiecePosition.F6).availablePositions(new HashSet<>()).build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder().whitePieces(Set.of(whiteBishop, whitePawn)).blackPieces(Set.of(blackKnight)).build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whiteBishop).hasOnlyAvailablePositions(ChessPiecePosition.C3, ChessPiecePosition.E5, ChessPiecePosition.F6, ChessPiecePosition.A7, ChessPiecePosition.B6, ChessPiecePosition.C5, ChessPiecePosition.E3, ChessPiecePosition.F2, ChessPiecePosition.G1);
+    }
 }
