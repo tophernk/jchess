@@ -95,4 +95,24 @@ class ChessConfigurationSupportTest {
 
         assertThat(whiteKnight).hasOnlyAvailablePositions(ChessPiecePosition.E6, ChessPiecePosition.F5, ChessPiecePosition.F3, ChessPiecePosition.E2, ChessPiecePosition.C2, ChessPiecePosition.B3, ChessPiecePosition.B5, ChessPiecePosition.C6);
     }
+
+    @Test
+    void knightMoveWithinBoardBoundaries() {
+        ChessPiece whiteKnight = ChessPiece.builder().pieceType(ChessPieceType.KNIGHT).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.D2).availablePositions(new HashSet<>()).build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder().whitePieces(Set.of(whiteKnight)).blackPieces(Collections.emptySet()).build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whiteKnight).hasOnlyAvailablePositions(ChessPiecePosition.E4, ChessPiecePosition.F3, ChessPiecePosition.F1, ChessPiecePosition.B1, ChessPiecePosition.B3, ChessPiecePosition.C4);
+    }
+
+    @Test
+    void knightTakes() {
+        ChessPiece whiteKnight = ChessPiece.builder().pieceType(ChessPieceType.KNIGHT).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.D2).availablePositions(new HashSet<>()).build();
+        ChessPiece whitePawn = ChessPiece.builder().pieceType(ChessPieceType.PAWN).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.F1).availablePositions(new HashSet<>()).build();
+        ChessPiece blackKnight = ChessPiece.builder().pieceType(ChessPieceType.KNIGHT).pieceColor(ChessPieceColor.BLACK).position(ChessPiecePosition.B1).availablePositions(new HashSet<>()).build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder().whitePieces(Set.of(whiteKnight, whitePawn)).blackPieces(Set.of(blackKnight)).build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whiteKnight).hasOnlyAvailablePositions(ChessPiecePosition.E4, ChessPiecePosition.F3, ChessPiecePosition.B1, ChessPiecePosition.B3, ChessPiecePosition.C4);
+    }
 }
