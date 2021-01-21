@@ -136,4 +136,24 @@ class ChessConfigurationSupportTest {
 
         assertThat(whiteBishop).hasOnlyAvailablePositions(ChessPiecePosition.C3, ChessPiecePosition.E5, ChessPiecePosition.F6, ChessPiecePosition.A7, ChessPiecePosition.B6, ChessPiecePosition.C5, ChessPiecePosition.E3, ChessPiecePosition.F2, ChessPiecePosition.G1);
     }
+
+    @Test
+    void rookMoves() {
+        ChessPiece whiteRook = ChessPiece.builder().pieceType(ChessPieceType.ROOK).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.E4).availablePositions(new HashSet<>()).build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder().whitePieces(Set.of(whiteRook)).blackPieces(Collections.emptySet()).build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whiteRook).hasOnlyAvailablePositions(ChessPiecePosition.E1, ChessPiecePosition.E2, ChessPiecePosition.E3, ChessPiecePosition.E5, ChessPiecePosition.E6, ChessPiecePosition.E7, ChessPiecePosition.E8, ChessPiecePosition.A4, ChessPiecePosition.B4, ChessPiecePosition.C4, ChessPiecePosition.D4, ChessPiecePosition.F4, ChessPiecePosition.G4, ChessPiecePosition.H4);
+    }
+
+    @Test
+    void rookTakes() {
+        ChessPiece whiteRook = ChessPiece.builder().pieceType(ChessPieceType.ROOK).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.E4).availablePositions(new HashSet<>()).build();
+        ChessPiece whitePawn = ChessPiece.builder().pieceType(ChessPieceType.PAWN).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.C4).availablePositions(new HashSet<>()).build();
+        ChessPiece blackKnight = ChessPiece.builder().pieceType(ChessPieceType.KNIGHT).pieceColor(ChessPieceColor.BLACK).position(ChessPiecePosition.E6).availablePositions(new HashSet<>()).build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder().whitePieces(Set.of(whiteRook, whitePawn)).blackPieces(Set.of(blackKnight)).build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whiteRook).hasOnlyAvailablePositions(ChessPiecePosition.E1, ChessPiecePosition.E2, ChessPiecePosition.E3, ChessPiecePosition.E5, ChessPiecePosition.E6, ChessPiecePosition.D4, ChessPiecePosition.F4, ChessPiecePosition.G4, ChessPiecePosition.H4);
+    }
 }

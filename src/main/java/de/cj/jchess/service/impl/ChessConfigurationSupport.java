@@ -30,7 +30,10 @@ public class ChessConfigurationSupport {
                     determineKnightMoves(piece, pieces);
                     break;
                 case BISHOP:
-                    determineBishipMoves(piece, pieces);
+                    determineBishopMoves(piece, pieces);
+                    break;
+                case ROOK:
+                    determineRookMoves(pieces, piece);
                     break;
                 default:
                     break;
@@ -38,11 +41,15 @@ public class ChessConfigurationSupport {
         }
     }
 
-    private void determineBishipMoves(ChessPiece piece, Set<ChessPiece> pieces) {
-        // test the four diagonals clockwise
-        int[] fileOffset = {1, 1, -1, -1};
-        int[] rankOffset = {-1, 1, 1, -1};
+    private void determineRookMoves(Set<ChessPiece> pieces, ChessPiece piece) {
+        // test the four directions clockwise
+        int[] fileOffset = {1, 0, -1, 0};
+        int[] rankOffset = {0, 1, 0, -1};
 
+        determineAvailableMovesByGivenOffsetDirection(pieces, piece, fileOffset, rankOffset);
+    }
+
+    private void determineAvailableMovesByGivenOffsetDirection(Set<ChessPiece> pieces, ChessPiece piece, int[] fileOffset, int[] rankOffset) {
         for (int i = 0; i < 4; i++) {
             char targetFile = piece.getPosition().getFile();
             int targetRank = piece.getPosition().getRank();
@@ -62,6 +69,14 @@ public class ChessConfigurationSupport {
                 }
             }
         }
+    }
+
+    private void determineBishopMoves(ChessPiece piece, Set<ChessPiece> pieces) {
+        // test the four diagonals clockwise
+        int[] fileOffset = {1, 1, -1, -1};
+        int[] rankOffset = {-1, 1, 1, -1};
+
+        determineAvailableMovesByGivenOffsetDirection(pieces, piece, fileOffset, rankOffset);
     }
 
     private void determineKnightMoves(ChessPiece piece, Set<ChessPiece> pieces) {
