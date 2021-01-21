@@ -38,9 +38,7 @@ public class ChessConfigurationSupport {
         int direction = isWhitePiece ? 1 : -1;
         int startRank = isWhitePiece ? 2 : 7;
         ChessPieceColor oppositeColor = isWhitePiece ? ChessPieceColor.BLACK : ChessPieceColor.WHITE;
-
         int pawnRank = position.getRank();
-        ChessPiecePosition singleMovePosition = ChessPiecePosition.retrievePosition(position.getFile(), pawnRank + 1 * direction);
 
         // double forward move from starting position
         if (pawnRank == startRank) {
@@ -54,13 +52,28 @@ public class ChessConfigurationSupport {
         if (isEnPassantPossible(enPassant, position, direction)) {
             pawn.getAvailablePositions().add(enPassant);
         }
-        // standard pawn move
+        // standard forward move
+        ChessPiecePosition singleMovePosition = ChessPiecePosition.retrievePosition(position.getFile(), pawnRank + 1 * direction);
         if (pieces.stream().map(ChessPiece::getPosition).noneMatch(p -> p == singleMovePosition)) {
             pawn.getAvailablePositions().add(singleMovePosition);
         }
         // takes left and right
+        int takesFile = position.getFile() + 1;
+        for (int i = 0; i < 2; i++) {
+            if (takesFile >= 'A' && takesFile <= 'H') {
+                ChessPiecePosition targetPosition = ChessPiecePosition.retrievePosition((char) takesFile, singleMovePosition.getRank());
+                if (isTargetOccupiedByOpponent(pieces, targetPosition, oppositeColor)) {
+                    pawn.getAvailablePositions().add(ChessPiecePosition.retrievePosition((char) takesFile, singleMovePosition.getRank()));
+                }
+            }
+            takesFile = position.getFile() - 1;
+        }
+    }
 
-
+    private boolean isTargetOccupiedByOpponent(Set<ChessPiece> pieces, ChessPiecePosition targetPosition, ChessPieceColor oppositeColor) {
+        return pieces.stream()
+                .filter(p -> p.getPosition() == targetPosition)
+                .map(ChessPiece::getPieceColor).anyMatch(c -> c == oppositeColor);
     }
 
     private boolean isEnPassantPossible(ChessPiecePosition enPassant, ChessPiecePosition position, int direction) {
