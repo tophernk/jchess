@@ -67,10 +67,7 @@ public class ChessConfigurationSupport {
             int targetRank = king.getPosition().getRank();
             targetFile += fileOffset[i];
             targetRank += rankOffset[i];
-            boolean continueDirection = addMoveIfAvailable(boardPieces, king, targetFile, targetRank);
-            if (!continueDirection) {
-                break;
-            }
+            addMoveIfAvailable(boardPieces, king, targetFile, targetRank);
         }
 
         // test castles when in starting position

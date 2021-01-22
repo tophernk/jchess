@@ -194,12 +194,12 @@ class ChessConfigurationSupportTest {
     @Test
     void kingTakes() {
         ChessPiece whiteKing = ChessPiece.builder().pieceType(ChessPieceType.KING).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.D4).availablePositions(new HashSet<>()).build();
-        ChessPiece whitePawn = ChessPiece.builder().pieceType(ChessPieceType.PAWN).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.D5).availablePositions(new HashSet<>()).build();
-        ChessPiece blackKnight = ChessPiece.builder().pieceType(ChessPieceType.KNIGHT).pieceColor(ChessPieceColor.BLACK).position(ChessPiecePosition.E6).availablePositions(new HashSet<>()).build();
+        ChessPiece whitePawn = ChessPiece.builder().pieceType(ChessPieceType.PAWN).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.C5).availablePositions(new HashSet<>()).build();
+        ChessPiece blackKnight = ChessPiece.builder().pieceType(ChessPieceType.KNIGHT).pieceColor(ChessPieceColor.BLACK).position(ChessPiecePosition.D3).availablePositions(new HashSet<>()).build();
         ChessConfiguration chessConfiguration = ChessConfiguration.builder().whitePieces(Set.of(whiteKing, whitePawn)).blackPieces(Set.of(blackKnight)).build();
         chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
 
-        assertThat(whiteKing).hasOnlyAvailablePositions(ChessPiecePosition.D5, ChessPiecePosition.E5, ChessPiecePosition.E4, ChessPiecePosition.E3, ChessPiecePosition.D3, ChessPiecePosition.C3, ChessPiecePosition.C4, ChessPiecePosition.C5);
+        assertThat(whiteKing).hasOnlyAvailablePositions(ChessPiecePosition.D5, ChessPiecePosition.E5, ChessPiecePosition.E4, ChessPiecePosition.E3, ChessPiecePosition.D3, ChessPiecePosition.C3, ChessPiecePosition.C4);
     }
 
 }
