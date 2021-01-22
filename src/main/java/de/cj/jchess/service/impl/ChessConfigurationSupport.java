@@ -241,7 +241,7 @@ public class ChessConfigurationSupport {
                     .add(enPassant);
         }
         // standard forward move
-        ChessPiecePosition singleMovePosition = ChessPiecePosition.retrievePosition(position.getFile(), pawnRank + 1 * direction);
+        ChessPiecePosition singleMovePosition = ChessPiecePosition.retrievePosition(position.getFile(), pawnRank + direction);
         if (boardPieces.stream()
                 .map(ChessPiece::getPosition)
                 .noneMatch(p -> p == singleMovePosition)) {
