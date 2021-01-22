@@ -82,8 +82,10 @@ public class ChessFenServiceImpl implements ChessFenService {
         }
         configurationBuilder.whitePieces(whitePieces);
         configurationBuilder.blackPieces(blackPieces);
-        if (!enPassant.toString().equals("-")) {
-            configurationBuilder.enPassant(ChessPiecePosition.valueOf(enPassant.toString().toUpperCase()));
+        if (!enPassant.toString()
+                .equals("-")) {
+            configurationBuilder.enPassant(ChessPiecePosition.valueOf(enPassant.toString()
+                    .toUpperCase()));
         }
 
         ChessConfiguration result = configurationBuilder.build();
@@ -103,7 +105,8 @@ public class ChessFenServiceImpl implements ChessFenService {
     @Override
     public ChessConfiguration findConfigurationById(String id) {
         MongoChessConfiguration chessConfigurationById = repository.findChessConfigurationById(id);
-        if (chessConfigurationById.getEnPassant().isEmpty()) {
+        if (chessConfigurationById.getEnPassant()
+                .isEmpty()) {
             chessConfigurationById.setEnPassant(null);
         }
         return chessConfigurationMapper.mongoToChessConfiguration(chessConfigurationById);

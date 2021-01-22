@@ -32,6 +32,7 @@ public enum ChessPiecePosition {
         return Arrays.stream(ChessPiecePosition.values())
                 .filter(p -> p.getFile() == file)
                 .filter(p -> p.getRank() == rank)
-                .findAny().orElseThrow(IllegalArgumentException::new);
+                .findAny()
+                .orElseThrow(IllegalArgumentException::new);
     }
 }

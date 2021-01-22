@@ -26,7 +26,8 @@ class ChessFenServiceTest {
 
     @Test
     void exportFen() {
-        ChessConfiguration configuration = ChessConfiguration.builder().build();
+        ChessConfiguration configuration = ChessConfiguration.builder()
+                .build();
         String fen = fenService.exportFen(configuration);
 
         assertNotNull(fen);
@@ -36,6 +37,7 @@ class ChessFenServiceTest {
     void findConfigurationById() {
         ChessConfiguration inConfiguration = fenService.importFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 0");
         ChessConfiguration outConfiguration = fenService.findConfigurationById(inConfiguration.getId());
-        Assertions.assertThat(inConfiguration).isEqualToComparingFieldByFieldRecursively(outConfiguration);
+        Assertions.assertThat(inConfiguration)
+                .isEqualToComparingFieldByFieldRecursively(outConfiguration);
     }
 }
