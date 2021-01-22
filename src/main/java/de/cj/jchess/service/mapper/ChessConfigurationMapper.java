@@ -8,6 +8,7 @@ import org.mapstruct.Mapper;
 public interface ChessConfigurationMapper {
 
     MongoChessConfiguration chessConfigurationToMongo(ChessConfiguration configuration);
+
     ChessConfiguration mongoToChessConfiguration(MongoChessConfiguration configuration);
 
 }

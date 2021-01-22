@@ -1,7 +1,6 @@
 package de.cj.jchess;
 
 import de.cj.jchess.entity.ChessConfiguration;
-import de.cj.jchess.entity.MongoChessConfiguration;
 import de.cj.jchess.service.ChessFenService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -9,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @AutoConfigureMockMvc

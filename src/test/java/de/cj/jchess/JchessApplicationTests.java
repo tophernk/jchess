@@ -10,12 +10,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest
 class JchessApplicationTests {
 
-	@Autowired
-	private JChessController controller;
+    @Autowired
+    private JChessController controller;
 
-	@Test
-	void contextLoads() {
-		assertNotNull(controller);
-	}
+    @Test
+    void contextLoads() {
+        assertNotNull(controller);
+    }
 
 }

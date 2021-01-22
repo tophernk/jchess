@@ -16,13 +16,19 @@ import java.util.stream.Stream;
 public class ChessConfigurationSupport {
 
     private static final EnumSet<ChessPiecePosition> WHITE_SHORT_CASTLE_MOVING_FIELDS = EnumSet.of(ChessPiecePosition.F1, ChessPiecePosition.G1);
-    private static final EnumSet<ChessPiecePosition> WHITE_SHORT_CASTLE_CHECK_FIELDS = EnumSet.of(ChessPiecePosition.F1, ChessPiecePosition.G1, ChessPiecePosition.H1);
-    private static final EnumSet<ChessPiecePosition> WHITE_LONG_CASTLE_MOVING_FIELDS = EnumSet.of(ChessPiecePosition.B1, ChessPiecePosition.C1, ChessPiecePosition.D1);
-    private static final EnumSet<ChessPiecePosition> WHITE_LONG_CASTLE_CHECK_FIELDS = EnumSet.of(ChessPiecePosition.A1, ChessPiecePosition.B1, ChessPiecePosition.C1, ChessPiecePosition.D1);
+    private static final EnumSet<ChessPiecePosition> WHITE_SHORT_CASTLE_CHECK_FIELDS = EnumSet.of(ChessPiecePosition.F1, ChessPiecePosition.G1,
+            ChessPiecePosition.H1);
+    private static final EnumSet<ChessPiecePosition> WHITE_LONG_CASTLE_MOVING_FIELDS = EnumSet.of(ChessPiecePosition.B1, ChessPiecePosition.C1,
+            ChessPiecePosition.D1);
+    private static final EnumSet<ChessPiecePosition> WHITE_LONG_CASTLE_CHECK_FIELDS = EnumSet.of(ChessPiecePosition.A1, ChessPiecePosition.B1,
+            ChessPiecePosition.C1, ChessPiecePosition.D1);
     private static final EnumSet<ChessPiecePosition> BLACK_SHORT_CASTLE_MOVING_FIELDS = EnumSet.of(ChessPiecePosition.F8, ChessPiecePosition.G8);
-    private static final EnumSet<ChessPiecePosition> BLACK_SHORT_CASTLE_CHECK_FIELDS = EnumSet.of(ChessPiecePosition.F8, ChessPiecePosition.G8, ChessPiecePosition.H8);
-    private static final EnumSet<ChessPiecePosition> BLACK_LONG_CASTLE_MOVING_FIELDS = EnumSet.of(ChessPiecePosition.B8, ChessPiecePosition.C8, ChessPiecePosition.D8);
-    private static final EnumSet<ChessPiecePosition> BLACK_LONG_CASTLE_CHECK_FIELDS = EnumSet.of(ChessPiecePosition.A8, ChessPiecePosition.B8, ChessPiecePosition.C8, ChessPiecePosition.D8);
+    private static final EnumSet<ChessPiecePosition> BLACK_SHORT_CASTLE_CHECK_FIELDS = EnumSet.of(ChessPiecePosition.F8, ChessPiecePosition.G8,
+            ChessPiecePosition.H8);
+    private static final EnumSet<ChessPiecePosition> BLACK_LONG_CASTLE_MOVING_FIELDS = EnumSet.of(ChessPiecePosition.B8, ChessPiecePosition.C8,
+            ChessPiecePosition.D8);
+    private static final EnumSet<ChessPiecePosition> BLACK_LONG_CASTLE_CHECK_FIELDS = EnumSet.of(ChessPiecePosition.A8, ChessPiecePosition.B8,
+            ChessPiecePosition.C8, ChessPiecePosition.D8);
 
     void updateAvailablePositions(ChessConfiguration configuration) {
         Set<ChessPiece> boardPieces = Stream.of(configuration.getWhitePieces(), configuration.getBlackPieces())
@@ -82,29 +88,35 @@ public class ChessConfigurationSupport {
     }
 
     private void addBlackCastlesIfAvailable(ChessPiece king, Set<ChessPiece> boardPieces, ChessConfiguration configuration) {
-        if (canCastle(configuration.isShortCastlesBlack(), ChessPieceColor.WHITE, boardPieces, BLACK_SHORT_CASTLE_MOVING_FIELDS, BLACK_SHORT_CASTLE_CHECK_FIELDS)) {
+        if (canCastle(configuration.isShortCastlesBlack(), ChessPieceColor.WHITE, boardPieces, BLACK_SHORT_CASTLE_MOVING_FIELDS,
+                BLACK_SHORT_CASTLE_CHECK_FIELDS)) {
             king.getAvailablePositions().add(ChessPiecePosition.G8);
         }
-        if (canCastle(configuration.isLongCastlesBlack(), ChessPieceColor.WHITE, boardPieces, BLACK_LONG_CASTLE_MOVING_FIELDS, BLACK_LONG_CASTLE_CHECK_FIELDS)) {
+        if (canCastle(configuration.isLongCastlesBlack(), ChessPieceColor.WHITE, boardPieces, BLACK_LONG_CASTLE_MOVING_FIELDS,
+                BLACK_LONG_CASTLE_CHECK_FIELDS)) {
             king.getAvailablePositions().add(ChessPiecePosition.C8);
         }
     }
 
     private void addWhiteCastlesIfAvailable(ChessPiece king, Set<ChessPiece> boardPieces, ChessConfiguration configuration) {
-        if (canCastle(configuration.isShortCastlesWhite(), ChessPieceColor.BLACK, boardPieces, WHITE_SHORT_CASTLE_MOVING_FIELDS, WHITE_SHORT_CASTLE_CHECK_FIELDS)) {
+        if (canCastle(configuration.isShortCastlesWhite(), ChessPieceColor.BLACK, boardPieces, WHITE_SHORT_CASTLE_MOVING_FIELDS,
+                WHITE_SHORT_CASTLE_CHECK_FIELDS)) {
             king.getAvailablePositions().add(ChessPiecePosition.G1);
         }
-        if (canCastle(configuration.isLongCastlesWhite(), ChessPieceColor.BLACK, boardPieces, WHITE_LONG_CASTLE_MOVING_FIELDS, WHITE_LONG_CASTLE_CHECK_FIELDS)) {
+        if (canCastle(configuration.isLongCastlesWhite(), ChessPieceColor.BLACK, boardPieces, WHITE_LONG_CASTLE_MOVING_FIELDS,
+                WHITE_LONG_CASTLE_CHECK_FIELDS)) {
             king.getAvailablePositions().add(ChessPiecePosition.C1);
         }
     }
 
-    private boolean canCastle(boolean castlesToCheck, ChessPieceColor attacker, Set<ChessPiece> boardPieces, EnumSet<ChessPiecePosition> movingFields, EnumSet<ChessPiecePosition> checkFreeFields) {
+    private boolean canCastle(boolean castlesToCheck, ChessPieceColor attacker, Set<ChessPiece> boardPieces, EnumSet<ChessPiecePosition> movingFields,
+            EnumSet<ChessPiecePosition> checkFreeFields) {
         return !castlesToCheck || isPositionBlocked(boardPieces, movingFields) || isPositionUnderAttack(boardPieces, attacker, checkFreeFields);
     }
 
     private boolean isPositionUnderAttack(Set<ChessPiece> boardPieces, ChessPieceColor attackingColor, EnumSet<ChessPiecePosition> positionsToCheck) {
-        return boardPieces.stream().filter(p -> p.getPieceColor() == attackingColor).map(ChessPiece::getAvailablePositions).flatMap(Collection::stream).anyMatch(positionsToCheck::contains);
+        return boardPieces.stream().filter(p -> p.getPieceColor() == attackingColor).map(ChessPiece::getAvailablePositions).flatMap(Collection::stream)
+                .anyMatch(positionsToCheck::contains);
     }
 
     private boolean isPositionBlocked(Set<ChessPiece> boardPieces, EnumSet<ChessPiecePosition> positionsToCheck) {
