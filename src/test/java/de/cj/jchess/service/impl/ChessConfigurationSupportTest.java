@@ -457,7 +457,6 @@ class ChessConfigurationSupportTest {
 
         assertThat(whiteKing).hasOnlyAvailablePositions(ChessPiecePosition.D1, ChessPiecePosition.D2, ChessPiecePosition.E2, ChessPiecePosition.F2,
                 ChessPiecePosition.F1, ChessPiecePosition.G1);
-
     }
 
     @Test
@@ -483,7 +482,6 @@ class ChessConfigurationSupportTest {
 
         assertThat(whiteKing).hasOnlyAvailablePositions(ChessPiecePosition.D1, ChessPiecePosition.D2, ChessPiecePosition.E2, ChessPiecePosition.F2,
                 ChessPiecePosition.F1, ChessPiecePosition.C1);
-
     }
 
     @Test
@@ -534,7 +532,66 @@ class ChessConfigurationSupportTest {
 
         assertThat(blackKing).hasOnlyAvailablePositions(ChessPiecePosition.D8, ChessPiecePosition.D7, ChessPiecePosition.E7, ChessPiecePosition.F7,
                 ChessPiecePosition.F8, ChessPiecePosition.C8);
-
     }
 
+    @Test
+    void whiteKingBlockedCastle() {
+        ChessPiece whiteKing = ChessPiece.builder()
+                .pieceType(ChessPieceType.KING)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPiecePosition.E1)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessPiece whiteRook = ChessPiece.builder()
+                .pieceType(ChessPieceType.ROOK)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPiecePosition.H1)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessPiece whiteKnight = ChessPiece.builder()
+                .pieceType(ChessPieceType.KNIGHT)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPiecePosition.G1)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder()
+                .whitePieces(Set.of(whiteKing, whiteRook, whiteKnight))
+                .blackPieces(Collections.emptySet())
+                .shortCastlesWhite(true)
+                .build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whiteKing).hasOnlyAvailablePositions(ChessPiecePosition.D1, ChessPiecePosition.D2, ChessPiecePosition.E2, ChessPiecePosition.F2,
+                ChessPiecePosition.F1);
+    }
+    @Test
+    void whiteKingCheckedCastle() {
+        ChessPiece whiteKing = ChessPiece.builder()
+                .pieceType(ChessPieceType.KING)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPiecePosition.E1)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessPiece whiteRook = ChessPiece.builder()
+                .pieceType(ChessPieceType.ROOK)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPiecePosition.H1)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessPiece blackKnight = ChessPiece.builder()
+                .pieceType(ChessPieceType.KNIGHT)
+                .pieceColor(ChessPieceColor.BLACK)
+                .position(ChessPiecePosition.G3)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder()
+                .whitePieces(Set.of(whiteKing, whiteRook))
+                .blackPieces(Set.of(blackKnight))
+                .shortCastlesWhite(true)
+                .build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whiteKing).hasOnlyAvailablePositions(ChessPiecePosition.D1, ChessPiecePosition.D2, ChessPiecePosition.E2, ChessPiecePosition.F2,
+                ChessPiecePosition.F1);
+    }
 }

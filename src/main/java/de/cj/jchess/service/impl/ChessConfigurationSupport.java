@@ -1,9 +1,6 @@
 package de.cj.jchess.service.impl;
 
-import de.cj.jchess.entity.ChessConfiguration;
-import de.cj.jchess.entity.ChessPiece;
-import de.cj.jchess.entity.ChessPieceColor;
-import de.cj.jchess.entity.ChessPiecePosition;
+import de.cj.jchess.entity.*;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -56,12 +53,15 @@ public class ChessConfigurationSupport {
                     determineQueenMoves(pieceToMove, boardPieces);
                     break;
                 case KING:
-                    determineKingMoves(pieceToMove, boardPieces, configuration);
+                    // kings have to be evaluated after other pieces have been updated for proper castle checks
                     break;
                 default:
                     throw new IllegalStateException();
             }
         }
+        boardPieces.stream()
+                .filter(p -> p.getPieceType() == ChessPieceType.KING)
+                .forEach(king -> determineKingMoves(king, boardPieces, configuration));
     }
 
     private void determineKingMoves(ChessPiece king, Set<ChessPiece> boardPieces, ChessConfiguration configuration) {
