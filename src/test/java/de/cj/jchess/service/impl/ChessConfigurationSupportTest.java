@@ -181,4 +181,25 @@ class ChessConfigurationSupportTest {
                 ChessPiecePosition.F3, ChessPiecePosition.G2, ChessPiecePosition.H1, ChessPiecePosition.A4, ChessPiecePosition.B4, ChessPiecePosition.C4, ChessPiecePosition.D4, ChessPiecePosition.F4,
                 ChessPiecePosition.G4, ChessPiecePosition.H4, ChessPiecePosition.E1, ChessPiecePosition.E2, ChessPiecePosition.E3, ChessPiecePosition.E5, ChessPiecePosition.E6);
     }
+
+    @Test
+    void kingMoves() {
+        ChessPiece whiteKing = ChessPiece.builder().pieceType(ChessPieceType.KING).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.D4).availablePositions(new HashSet<>()).build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder().whitePieces(Set.of(whiteKing)).blackPieces(Collections.emptySet()).build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whiteKing).hasOnlyAvailablePositions(ChessPiecePosition.D5, ChessPiecePosition.E5, ChessPiecePosition.E4, ChessPiecePosition.E3, ChessPiecePosition.D3, ChessPiecePosition.C3, ChessPiecePosition.C4, ChessPiecePosition.C5);
+    }
+
+    @Test
+    void kingTakes() {
+        ChessPiece whiteKing = ChessPiece.builder().pieceType(ChessPieceType.KING).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.D4).availablePositions(new HashSet<>()).build();
+        ChessPiece whitePawn = ChessPiece.builder().pieceType(ChessPieceType.PAWN).pieceColor(ChessPieceColor.WHITE).position(ChessPiecePosition.D5).availablePositions(new HashSet<>()).build();
+        ChessPiece blackKnight = ChessPiece.builder().pieceType(ChessPieceType.KNIGHT).pieceColor(ChessPieceColor.BLACK).position(ChessPiecePosition.E6).availablePositions(new HashSet<>()).build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder().whitePieces(Set.of(whiteKing, whitePawn)).blackPieces(Set.of(blackKnight)).build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whiteKing).hasOnlyAvailablePositions(ChessPiecePosition.D5, ChessPiecePosition.E5, ChessPiecePosition.E4, ChessPiecePosition.E3, ChessPiecePosition.D3, ChessPiecePosition.C3, ChessPiecePosition.C4, ChessPiecePosition.C5);
+    }
+
 }
