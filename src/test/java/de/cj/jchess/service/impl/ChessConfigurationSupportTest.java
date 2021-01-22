@@ -460,4 +460,81 @@ class ChessConfigurationSupportTest {
 
     }
 
+    @Test
+    void whiteKingLongCastle() {
+        ChessPiece whiteKing = ChessPiece.builder()
+                .pieceType(ChessPieceType.KING)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPiecePosition.E1)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessPiece whiteRook = ChessPiece.builder()
+                .pieceType(ChessPieceType.ROOK)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPiecePosition.A1)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder()
+                .whitePieces(Set.of(whiteKing, whiteRook))
+                .blackPieces(Collections.emptySet())
+                .longCastlesWhite(true)
+                .build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whiteKing).hasOnlyAvailablePositions(ChessPiecePosition.D1, ChessPiecePosition.D2, ChessPiecePosition.E2, ChessPiecePosition.F2,
+                ChessPiecePosition.F1, ChessPiecePosition.C1);
+
+    }
+
+    @Test
+    void blackKingshortCastle() {
+        ChessPiece blackKing = ChessPiece.builder()
+                .pieceType(ChessPieceType.KING)
+                .pieceColor(ChessPieceColor.BLACK)
+                .position(ChessPiecePosition.E8)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessPiece blackRook = ChessPiece.builder()
+                .pieceType(ChessPieceType.ROOK)
+                .pieceColor(ChessPieceColor.BLACK)
+                .position(ChessPiecePosition.A8)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder()
+                .whitePieces(Collections.emptySet())
+                .blackPieces(Set.of(blackKing, blackRook))
+                .shortCastlesBlack(true)
+                .build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(blackKing).hasOnlyAvailablePositions(ChessPiecePosition.D8, ChessPiecePosition.D7, ChessPiecePosition.E7, ChessPiecePosition.F7,
+                ChessPiecePosition.F8, ChessPiecePosition.G8);
+    }
+
+    @Test
+    void blackKingLongCastle() {
+        ChessPiece blackKing = ChessPiece.builder()
+                .pieceType(ChessPieceType.KING)
+                .pieceColor(ChessPieceColor.BLACK)
+                .position(ChessPiecePosition.E8)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessPiece blackRook = ChessPiece.builder()
+                .pieceType(ChessPieceType.ROOK)
+                .pieceColor(ChessPieceColor.BLACK)
+                .position(ChessPiecePosition.A8)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder()
+                .whitePieces(Collections.emptySet())
+                .blackPieces(Set.of(blackKing, blackRook))
+                .longCastlesBlack(true)
+                .build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(blackKing).hasOnlyAvailablePositions(ChessPiecePosition.D8, ChessPiecePosition.D7, ChessPiecePosition.E7, ChessPiecePosition.F7,
+                ChessPiecePosition.F8, ChessPiecePosition.C8);
+
+    }
+
 }
