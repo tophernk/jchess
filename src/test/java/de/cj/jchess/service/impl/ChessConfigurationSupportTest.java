@@ -594,4 +594,33 @@ class ChessConfigurationSupportTest {
         assertThat(whiteKing).hasOnlyAvailablePositions(ChessPiecePosition.D1, ChessPiecePosition.D2, ChessPiecePosition.E2, ChessPiecePosition.F2,
                 ChessPiecePosition.F1);
     }
+
+    @Test
+    void noAvailablePositionsForPinnedPiece() {
+        ChessPiece whiteKing = ChessPiece.builder()
+                .pieceType(ChessPieceType.KING)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPiecePosition.E1)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessPiece whitePawn = ChessPiece.builder()
+                .pieceType(ChessPieceType.PAWN)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPiecePosition.D2)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessPiece blackBishop = ChessPiece.builder()
+                .pieceType(ChessPieceType.BISHOP)
+                .pieceColor(ChessPieceColor.BLACK)
+                .position(ChessPiecePosition.A5)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder()
+                .whitePieces(Set.of(whiteKing, whitePawn))
+                .blackPieces(Set.of(blackBishop))
+                .build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whitePawn).hasNoAvailablePositions();
+    }
 }

@@ -1,6 +1,8 @@
 package de.cj.jchess.entity;
 
 import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public enum ChessPiecePosition {
     A1('A', 1), A2('A', 2), A3('A', 3), A4('A', 4), A5('A', 5), A6('A', 6), A7('A', 7), A8('A', 8),
@@ -34,5 +36,24 @@ public enum ChessPiecePosition {
                 .filter(p -> p.getRank() == rank)
                 .findAny()
                 .orElseThrow(IllegalArgumentException::new);
+    }
+
+    public static Set<ChessPiecePosition> retrieveAllFilePositions(char file) {
+        return Arrays.stream(ChessPiecePosition.values())
+                .filter(p -> p.getFile() == file)
+                .collect(Collectors.toSet());
+    }
+
+    public static Set<ChessPiecePosition> retrieveAllRankPositions(int rank) {
+        return Arrays.stream(ChessPiecePosition.values())
+                .filter(p -> p.getRank() == rank)
+                .collect(Collectors.toSet());
+    }
+
+    public static Set<ChessPiecePosition> retrieveAllDiagonalPositions(ChessPiecePosition position) {
+        return Arrays.stream(ChessPiecePosition.values())
+                .filter(p -> Math.abs(p.getFile() - position.getFile()) == Math.abs(p.getRank() - position.getRank()))
+                .filter(p -> p != position)
+                .collect(Collectors.toSet());
     }
 }

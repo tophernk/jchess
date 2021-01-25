@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,29 +29,32 @@ public class ChessConfigurationSupport {
             ChessPiecePosition.C8, ChessPiecePosition.D8);
 
     void updateAvailablePositions(ChessConfiguration configuration) {
-        Set<ChessPiece> boardPieces = Stream.of(configuration.getWhitePieces(), configuration.getBlackPieces())
+        Set<ChessPiece> piecesToUpdate = Stream.of(configuration.getWhitePieces(), configuration.getBlackPieces())
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
-        for (ChessPiece pieceToMove : boardPieces) {
+        Set<ChessPiece> pinnedPieces = determinePinnedPieces(configuration);
+        piecesToUpdate.removeAll(pinnedPieces);
+
+        for (ChessPiece pieceToMove : piecesToUpdate) {
             pieceToMove.getAvailablePositions()
                     .clear();
 
             switch (pieceToMove.getPieceType()) {
                 case PAWN:
-                    determinePawnMoves(pieceToMove, boardPieces, configuration.getEnPassant());
+                    determinePawnMoves(pieceToMove, piecesToUpdate, configuration.getEnPassant());
                     break;
                 case KNIGHT:
-                    determineKnightMoves(pieceToMove, boardPieces);
+                    determineKnightMoves(pieceToMove, piecesToUpdate);
                     break;
                 case BISHOP:
-                    determineBishopMoves(pieceToMove, boardPieces);
+                    determineBishopMoves(pieceToMove, piecesToUpdate);
                     break;
                 case ROOK:
-                    determineRookMoves(pieceToMove, boardPieces);
+                    determineRookMoves(pieceToMove, piecesToUpdate);
                     break;
                 case QUEEN:
-                    determineQueenMoves(pieceToMove, boardPieces);
+                    determineQueenMoves(pieceToMove, piecesToUpdate);
                     break;
                 case KING:
                     // kings have to be evaluated after other pieces have been updated for proper castle checks
@@ -59,9 +63,18 @@ public class ChessConfigurationSupport {
                     throw new IllegalStateException();
             }
         }
-        boardPieces.stream()
+        piecesToUpdate.stream()
                 .filter(p -> p.getPieceType() == ChessPieceType.KING)
-                .forEach(king -> determineKingMoves(king, boardPieces, configuration));
+                .forEach(king -> determineKingMoves(king, piecesToUpdate, configuration));
+    }
+
+    private Set<ChessPiece> determinePinnedPieces(ChessConfiguration configuration) {
+        Set<ChessPiece> result = new HashSet<>();
+        Set<ChessPiece> whitePieces = configuration.getWhitePieces();
+        // determine all king lines: rank, file + 2 diagonals
+        // TODO: 25.01.21 continue here
+
+        return result;
     }
 
     private void determineKingMoves(ChessPiece king, Set<ChessPiece> boardPieces, ChessConfiguration configuration) {
