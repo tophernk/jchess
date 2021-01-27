@@ -564,6 +564,7 @@ class ChessConfigurationSupportTest {
         assertThat(whiteKing).hasOnlyAvailablePositions(ChessPiecePosition.D1, ChessPiecePosition.D2, ChessPiecePosition.E2, ChessPiecePosition.F2,
                 ChessPiecePosition.F1);
     }
+
     @Test
     void whiteKingCheckedCastle() {
         ChessPiece whiteKing = ChessPiece.builder()
@@ -596,14 +597,14 @@ class ChessConfigurationSupportTest {
     }
 
     @Test
-    void noAvailablePositionsForPinnedPiece() {
+    void noAvailablePositionsForPinnedPieceOnDiagonal() {
         ChessPiece whiteKing = ChessPiece.builder()
                 .pieceType(ChessPieceType.KING)
                 .pieceColor(ChessPieceColor.WHITE)
                 .position(ChessPiecePosition.E1)
                 .availablePositions(new HashSet<>())
                 .build();
-        ChessPiece whitePawn = ChessPiece.builder()
+        ChessPiece pinnedPawn = ChessPiece.builder()
                 .pieceType(ChessPieceType.PAWN)
                 .pieceColor(ChessPieceColor.WHITE)
                 .position(ChessPiecePosition.D2)
@@ -616,11 +617,49 @@ class ChessConfigurationSupportTest {
                 .availablePositions(new HashSet<>())
                 .build();
         ChessConfiguration chessConfiguration = ChessConfiguration.builder()
-                .whitePieces(Set.of(whiteKing, whitePawn))
+                .whitePieces(Set.of(whiteKing, pinnedPawn))
                 .blackPieces(Set.of(blackBishop))
                 .build();
         chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
 
-        assertThat(whitePawn).hasNoAvailablePositions();
+        assertThat(pinnedPawn).hasNoAvailablePositions();
     }
+
+    @Test
+    void noPinIfAnotherPieceOnDiagonal() {
+        ChessPiece whiteKing = ChessPiece.builder()
+                .pieceType(ChessPieceType.KING)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPiecePosition.E1)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessPiece whitePawn2 = ChessPiece.builder()
+                .pieceType(ChessPieceType.PAWN)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPiecePosition.D2)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessPiece whitePawn1 = ChessPiece.builder()
+                .pieceType(ChessPieceType.PAWN)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPiecePosition.C3)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessPiece blackBishop = ChessPiece.builder()
+                .pieceType(ChessPieceType.BISHOP)
+                .pieceColor(ChessPieceColor.BLACK)
+                .position(ChessPiecePosition.A5)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessConfiguration chessConfiguration = ChessConfiguration.builder()
+                .whitePieces(Set.of(whiteKing, whitePawn1, whitePawn2))
+                .blackPieces(Set.of(blackBishop))
+                .build();
+        chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
+
+        assertThat(whitePawn1).hasOnlyAvailablePositions(ChessPiecePosition.C4);
+        assertThat(whitePawn2).hasOnlyAvailablePositions(ChessPiecePosition.D3, ChessPiecePosition.D4);
+    }
+
+    // TODO: 27.01.21 add test for file / rank pins 
 }
