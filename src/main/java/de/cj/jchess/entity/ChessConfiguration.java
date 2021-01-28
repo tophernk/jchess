@@ -26,6 +26,6 @@ public class ChessConfiguration {
     private boolean longCastlesBlack;
 
     private ChessPieceColor turnColor;
-    private ChessPiecePosition enPassant;
+    private ChessPosition enPassant;
 
 }

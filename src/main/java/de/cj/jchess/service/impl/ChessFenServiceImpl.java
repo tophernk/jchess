@@ -84,7 +84,7 @@ public class ChessFenServiceImpl implements ChessFenService {
         configurationBuilder.blackPieces(blackPieces);
         if (!enPassant.toString()
                 .equals("-")) {
-            configurationBuilder.enPassant(ChessPiecePosition.valueOf(enPassant.toString()
+            configurationBuilder.enPassant(ChessPosition.valueOf(enPassant.toString()
                     .toUpperCase()));
         }
 
@@ -165,7 +165,7 @@ public class ChessFenServiceImpl implements ChessFenService {
         throw new IllegalArgumentException("ChessPieceType: invalid FEN value");
     }
 
-    public ChessPiecePosition determinePiecePositionBasedOnFenPosition(int rank, int x) {
-        return ChessPiecePosition.retrievePosition((char) (x + 65), rank);
+    public ChessPosition determinePiecePositionBasedOnFenPosition(int rank, int x) {
+        return ChessPosition.retrievePosition((char) (x + 65), rank);
     }
 }

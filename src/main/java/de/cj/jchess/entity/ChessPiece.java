@@ -13,9 +13,9 @@ public class ChessPiece {
 
     private ChessPieceColor pieceColor;
 
-    private ChessPiecePosition position;
+    private ChessPosition position;
 
-    private Set<ChessPiecePosition> availablePositions;
+    private Set<ChessPosition> availablePositions;
 
     private int id;
 

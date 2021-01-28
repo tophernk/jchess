@@ -3,7 +3,7 @@ package de.cj.jchess.service.impl;
 import de.cj.jchess.entity.ChessConfiguration;
 import de.cj.jchess.entity.ChessPiece;
 import de.cj.jchess.entity.ChessPieceColor;
-import de.cj.jchess.entity.ChessPiecePosition;
+import de.cj.jchess.entity.ChessPosition;
 import de.cj.jchess.service.ChessConfigurationService;
 import de.cj.jchess.service.ChessPrintService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class ChessPrintServiceImpl implements ChessPrintService {
             board.append(printIntermediateLine());
             board.append(printLeftBorder(rank));
             for (char file = 'A'; file <= 'H'; file++) {
-                ChessPiece piece = chessConfigurationService.findPieceAtPosition(configuration, ChessPiecePosition.retrievePosition(file, rank));
+                ChessPiece piece = chessConfigurationService.findPieceAtPosition(configuration, ChessPosition.retrievePosition(file, rank));
                 board.append(printPiece(piece));
             }
             board.append("|\n");

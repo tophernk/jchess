@@ -1,8 +1,9 @@
 package de.cj.jchess.service;
 
 import de.cj.jchess.entity.ChessConfiguration;
-import de.cj.jchess.entity.ChessMove;
 import de.cj.jchess.entity.ChessPieceColor;
+import de.cj.jchess.entity.ChessPosition;
+import org.springframework.data.util.Pair;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public interface ChessEvaluationService {
 
     public ChessPieceColor retrieveTurnColor(ChessConfiguration configuration);
 
-    public ChessMove determineBestMove(ChessConfiguration configuration, int depth);
+    public Pair<ChessPosition, ChessPosition> determineBestMove(ChessConfiguration configuration, int depth);
 
     public List<String> determineAvailablePosition(ChessConfiguration configuration);
 }
