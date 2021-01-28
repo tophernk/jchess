@@ -74,41 +74,64 @@ public class ChessConfigurationSupport {
                 .findAny()
                 .orElse(null);
 
-        return whiteKing != null ? determinePins(whiteKing, configuration) : Collections.emptySet();
+        return whiteKing != null ? retrievePinnedPieces(whiteKing, configuration) : Collections.emptySet();
     }
 
-    Set<ChessPiece> determinePins(ChessPiece king, ChessConfiguration configuration) {
+    Set<ChessPiece> retrievePinnedPieces(ChessPiece king, ChessConfiguration configuration) {
         // is piece protecting diagonal against attacking bishop/queen
         // 1. is bishop or queen on diagonal
-        Set<ChessPiecePosition> diagonalPositions = ChessPiecePosition.retrieveAllDiagonalPositions(king.getPosition());
         Set<ChessPiece> potentialAttackers = king.getPieceColor() == ChessPieceColor.WHITE ? configuration.getBlackPieces() : configuration.getWhitePieces();
         Set<ChessPiece> potentialProtectors = king.getPieceColor() == ChessPieceColor.WHITE ? configuration.getWhitePieces() : configuration.getBlackPieces();
 
+        Set<ChessPiece> pinnedPieces = determinePinsOnDiagonals(king, potentialAttackers, potentialProtectors);
+        pinnedPieces.addAll(determinePinsOnRanksAndFiles(king, potentialAttackers, potentialProtectors));
+
+        return pinnedPieces;
+    }
+
+    private Set<ChessPiece> determinePinsOnRanksAndFiles(ChessPiece king, Set<ChessPiece> potentialAttackers, Set<ChessPiece> potentialProtectors) {
+        Set<ChessPiecePosition> positionsToCheck = ChessPiecePosition.retrieveAllFilePositions(king.getPosition()
+                .getFile());
+        positionsToCheck.addAll(ChessPiecePosition.retrieveAllRankPositions(king.getPosition()
+                .getRank()));
+        Set<ChessPiece> fileRankAttackers = potentialAttackers.stream()
+                .filter(piece -> positionsToCheck.contains(piece.getPosition()))
+                .filter(piece -> EnumSet.of(ChessPieceType.ROOK, ChessPieceType.QUEEN)
+                        .contains(piece.getPieceType()))
+                .collect(Collectors.toSet());
+
+        return determinePins(king, fileRankAttackers, potentialProtectors, positionsToCheck);
+    }
+
+    private Set<ChessPiece> determinePinsOnDiagonals(ChessPiece king, Set<ChessPiece> potentialAttackers, Set<ChessPiece> potentialProtectors) {
+        Set<ChessPiecePosition> diagonalPositions = ChessPiecePosition.retrieveAllDiagonalPositions(king.getPosition());
         Set<ChessPiece> diagonalAttackers = potentialAttackers.stream()
                 .filter(piece -> diagonalPositions.contains(piece.getPosition()))
                 .filter(piece -> EnumSet.of(ChessPieceType.BISHOP, ChessPieceType.QUEEN)
                         .contains(piece.getPieceType()))
                 .collect(Collectors.toSet());
 
-        // 2. check if protecting piece exists
-        Set<ChessPiece> diagonalProtectors = potentialProtectors.stream()
-                .filter(piece -> diagonalPositions.contains(piece.getPosition()))
+        return determinePins(king, diagonalAttackers, potentialProtectors, diagonalPositions);
+    }
+
+    private Set<ChessPiece> determinePins(ChessPiece king, Set<ChessPiece> potentialAttackers, Set<ChessPiece> potentialProtectors,
+            Set<ChessPiecePosition> positionsToCheck) {
+        Set<ChessPiece> fileRankProtectors = potentialProtectors.stream()
+                .filter(piece -> positionsToCheck.contains(piece.getPosition()))
                 .collect(Collectors.toSet());
 
-        // 3. partition attackers and protectors to same diagonals
-        Map<ChessDirection, List<ChessPiece>> partions = new HashMap<>();
-        for (ChessPiece piece : Stream.of(diagonalAttackers, diagonalProtectors)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet())) {
-            ChessDirection relativePositionToKing = ChessPiecePosition.determineDirection(king.getPosition(), piece.getPosition());
-            if (!partions.containsKey(relativePositionToKing)) {
-                partions.put(relativePositionToKing, new ArrayList<>());
-            }
-            partions.get(relativePositionToKing)
-                    .add(piece);
+        if (fileRankProtectors.isEmpty()) {
+            return new HashSet<>();
         }
 
+        // 3. partition attackers and protectors to same diagonals
+        Map<ChessDirection, List<ChessPiece>> partions = partitionPiecesByDirection(king, potentialAttackers, fileRankProtectors);
+
         // 4. sort attackers and protectors by distance to king
+        return sortPartitionedPiecesByDistanceToGivenPieceAndCheckForPins(king, partions);
+    }
+
+    private Set<ChessPiece> sortPartitionedPiecesByDistanceToGivenPieceAndCheckForPins(ChessPiece king, Map<ChessDirection, List<ChessPiece>> partions) {
         Set<ChessPiece> pinnedPieces = new HashSet<>();
         for (List<ChessPiece> list : partions.values()) {
             Collections.sort(list, Comparator.comparingInt(p -> ChessPiecePosition.determineDistance(p.getPosition(), king.getPosition())));
@@ -123,9 +146,23 @@ public class ChessConfigurationSupport {
                 pinnedPieces.add(list.get(0));
             }
         }
-
-        // is piece protecting file/rank against attacking rook/queen
         return pinnedPieces;
+    }
+
+    private Map<ChessDirection, List<ChessPiece>> partitionPiecesByDirection(ChessPiece king, Set<ChessPiece> diagonalAttackers,
+            Set<ChessPiece> diagonalProtectors) {
+        Map<ChessDirection, List<ChessPiece>> partitions = new EnumMap<>(ChessDirection.class);
+        for (ChessPiece piece : Stream.of(diagonalAttackers, diagonalProtectors)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet())) {
+            ChessDirection relativePositionToKing = ChessPiecePosition.determineDirection(king.getPosition(), piece.getPosition());
+            if (!partitions.containsKey(relativePositionToKing)) {
+                partitions.put(relativePositionToKing, new ArrayList<>());
+            }
+            partitions.get(relativePositionToKing)
+                    .add(piece);
+        }
+        return partitions;
     }
 
     private void determineKingMoves(ChessPiece king, Set<ChessPiece> boardPieces, ChessConfiguration configuration) {
@@ -272,11 +309,9 @@ public class ChessConfigurationSupport {
             int targetRank = knight.getPosition()
                     .getRank() + rankOffset[i];
             ChessPiecePosition targetPosition = ChessPiecePosition.retrievePosition(targetFile, targetRank);
-            if (targetPosition != null) {
-                if (isTargetFree(boardPieces, targetPosition) || isTargetOccupiedByOpponent(knight, boardPieces, targetPosition)) {
-                    knight.getAvailablePositions()
-                            .add(targetPosition);
-                }
+            if (targetPosition != null && (isTargetFree(boardPieces, targetPosition) || isTargetOccupiedByOpponent(knight, boardPieces, targetPosition))) {
+                knight.getAvailablePositions()
+                        .add(targetPosition);
             }
         }
     }
@@ -316,11 +351,9 @@ public class ChessConfigurationSupport {
         int takesFile = position.getFile() + 1;
         for (int i = 0; i < 2; i++) {
             ChessPiecePosition targetPosition = ChessPiecePosition.retrievePosition((char) takesFile, singleMovePosition.getRank());
-            if (targetPosition != null) {
-                if (isTargetOccupiedByOpponent(pawn, boardPieces, targetPosition)) {
-                    pawn.getAvailablePositions()
-                            .add(ChessPiecePosition.retrievePosition((char) takesFile, singleMovePosition.getRank()));
-                }
+            if (targetPosition != null && isTargetOccupiedByOpponent(pawn, boardPieces, targetPosition)) {
+                pawn.getAvailablePositions()
+                        .add(ChessPiecePosition.retrievePosition((char) takesFile, singleMovePosition.getRank()));
             }
             takesFile = position.getFile() - 1;
         }
