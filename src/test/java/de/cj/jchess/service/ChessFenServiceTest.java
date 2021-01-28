@@ -1,7 +1,6 @@
-package de.cj.jchess;
+package de.cj.jchess.service;
 
 import de.cj.jchess.entity.ChessConfiguration;
-import de.cj.jchess.service.ChessFenService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
