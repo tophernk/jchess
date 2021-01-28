@@ -53,11 +53,21 @@ class ChessPiecePositionTest {
 
     @Test
     void determineRelativePosition() {
-        // TODO: 27.01.21  
+        Assertions.assertThat(ChessPiecePosition.determineDirection(ChessPiecePosition.E4, ChessPiecePosition.E8)).isSameAs(ChessDirection.TOP);
+        Assertions.assertThat(ChessPiecePosition.determineDirection(ChessPiecePosition.E4, ChessPiecePosition.G8)).isSameAs(ChessDirection.TOP_RIGHT);
+        Assertions.assertThat(ChessPiecePosition.determineDirection(ChessPiecePosition.E4, ChessPiecePosition.H4)).isSameAs(ChessDirection.RIGHT);
+        Assertions.assertThat(ChessPiecePosition.determineDirection(ChessPiecePosition.E4, ChessPiecePosition.H1)).isSameAs(ChessDirection.BOTTOM_RIGHT);
+        Assertions.assertThat(ChessPiecePosition.determineDirection(ChessPiecePosition.E4, ChessPiecePosition.E1)).isSameAs(ChessDirection.BOTTOM);
+        Assertions.assertThat(ChessPiecePosition.determineDirection(ChessPiecePosition.E4, ChessPiecePosition.A1)).isSameAs(ChessDirection.BOTTOM_LEFT);
+        Assertions.assertThat(ChessPiecePosition.determineDirection(ChessPiecePosition.E4, ChessPiecePosition.B4)).isSameAs(ChessDirection.LEFT);
+        Assertions.assertThat(ChessPiecePosition.determineDirection(ChessPiecePosition.E4, ChessPiecePosition.A8)).isSameAs(ChessDirection.TOP_LEFT);
     }
 
     @Test
     void determineDistance() {
-        // TODO: 27.01.21
+        Assertions.assertThat(ChessPiecePosition.determineDistance(ChessPiecePosition.E4, ChessPiecePosition.E8)).isEqualTo(4);
+        Assertions.assertThat(ChessPiecePosition.determineDistance(ChessPiecePosition.E4, ChessPiecePosition.G8)).isEqualTo(4);
+        Assertions.assertThat(ChessPiecePosition.determineDistance(ChessPiecePosition.E4, ChessPiecePosition.H7)).isEqualTo(3);
+        Assertions.assertThat(ChessPiecePosition.determineDistance(ChessPiecePosition.E4, ChessPiecePosition.E1)).isEqualTo(3);
     }
 }

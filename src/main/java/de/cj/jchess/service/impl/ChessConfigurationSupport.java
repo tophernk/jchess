@@ -100,7 +100,7 @@ public class ChessConfigurationSupport {
         for (ChessPiece piece : Stream.of(diagonalAttackers, diagonalProtectors)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet())) {
-            ChessDirection relativePositionToKing = ChessPiecePosition.determineRelativePosition(king.getPosition(), piece.getPosition());
+            ChessDirection relativePositionToKing = ChessPiecePosition.determineDirection(king.getPosition(), piece.getPosition());
             if (!partions.containsKey(relativePositionToKing)) {
                 partions.put(relativePositionToKing, new ArrayList<>());
             }

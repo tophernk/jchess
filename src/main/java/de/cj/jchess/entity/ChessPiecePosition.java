@@ -81,7 +81,7 @@ public enum ChessPiecePosition {
         return result;
     }
 
-    public static ChessDirection determineRelativePosition(ChessPiecePosition fromPosition, ChessPiecePosition toPosition) {
+    public static ChessDirection determineDirection(ChessPiecePosition fromPosition, ChessPiecePosition toPosition) {
         if (fromPosition.getFile() > toPosition.getFile()) {
             // left cases
             if (fromPosition.getRank() > toPosition.getRank()) {
