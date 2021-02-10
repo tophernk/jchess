@@ -90,8 +90,7 @@ class ChessConfigurationSupportTest {
         ChessConfiguration chessConfiguration = ChessConfiguration.builder()
                 .whitePieces(Set.of(whitePawn))
                 .blackPieces(Set.of(blackPawn))
-                .enPassant(
-                        ChessPosition.C6)
+                .enPassant(ChessPosition.C6)
                 .build();
         chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
 
@@ -115,8 +114,7 @@ class ChessConfigurationSupportTest {
         ChessConfiguration chessConfiguration = ChessConfiguration.builder()
                 .whitePieces(Set.of(whitePawn))
                 .blackPieces(Set.of(blackPawn))
-                .enPassant(
-                        ChessPosition.C3)
+                .enPassant(ChessPosition.C3)
                 .build();
         chessConfigurationSupport.updateAvailablePositions(chessConfiguration);
 

@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 public class ChessMoveServiceImpl implements ChessMoveService {
 
     @Override
-    public int executeMove(ChessConfiguration configuration, ChessPosition from, ChessPosition to) {
-        return 0;
+    public boolean executeMove(ChessConfiguration configuration, ChessPosition from, ChessPosition to) {
+        return false;
     }
 
     @Override
