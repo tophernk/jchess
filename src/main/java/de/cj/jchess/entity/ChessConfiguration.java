@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 public class ChessConfiguration {
 

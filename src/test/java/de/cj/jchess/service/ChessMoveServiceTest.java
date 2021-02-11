@@ -8,12 +8,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static de.cj.jchess.entity.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(classes = {ChessMoveServiceImpl.class, ChessConfigurationServiceImpl.class, ChessConfigurationSupport.class})
@@ -99,7 +102,7 @@ class ChessMoveServiceTest {
     }
 
     @Test
-    void executeMoveToCheck() {
+    void executeCheck() {
         ChessPiece blackPawn = ChessPiece.builder()
                 .pieceType(ChessPieceType.PAWN)
                 .pieceColor(ChessPieceColor.BLACK)
@@ -139,6 +142,130 @@ class ChessMoveServiceTest {
                 .isNotShortCastlesWhite()
                 .hasTurnColor(ChessPieceColor.WHITE);
         assertThat(blackPawn).hasOnlyAvailablePositions(ChessPosition.D1);
+    }
+
+    @Test
+    void preventMoveIntoCheck() {
+        // assert that a move which ends in a check for the moving color is not executed and that the config is not changed
+        ChessPiece blackPawn = ChessPiece.builder()
+                .pieceType(ChessPieceType.PAWN)
+                .pieceColor(ChessPieceColor.BLACK)
+                .position(ChessPosition.A2)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessPiece blackRook = ChessPiece.builder()
+                .pieceType(ChessPieceType.ROOK)
+                .pieceColor(ChessPieceColor.BLACK)
+                .position(ChessPosition.A1)
+                .availablePositions(Stream.of(ChessPosition.B1, ChessPosition.C1)
+                        .collect(Collectors.toSet()))
+                .build();
+        ChessPiece whiteKnight = ChessPiece.builder()
+                .pieceType(ChessPieceType.KNIGHT)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPosition.D1)
+                .availablePositions(Stream.of(ChessPosition.B2, ChessPosition.C3, ChessPosition.E3, ChessPosition.F2)
+                        .collect(Collectors.toSet()))
+                .build();
+        ChessPiece whiteKing = ChessPiece.builder()
+                .pieceType(ChessPieceType.KING)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPosition.E1)
+                .availablePositions(Stream.of(ChessPosition.D2, ChessPosition.E2, ChessPosition.F2, ChessPosition.F1)
+                        .collect(Collectors.toSet()))
+                .build();
+        ChessConfiguration originalConfiguration = ChessConfiguration.builder()
+                .whitePieces(Stream.of(whiteKing, whiteKnight)
+                        .collect(Collectors.toSet()))
+                .blackPieces(Stream.of(blackPawn, blackRook)
+                        .collect(Collectors.toSet()))
+                .longCastlesBlack(false)
+                .longCastlesWhite(false)
+                .shortCastlesBlack(false)
+                .shortCastlesWhite(false)
+                .checkBlack(false)
+                .checkWhite(false)
+                .turnColor(ChessPieceColor.WHITE)
+                .build();
+        ChessConfiguration configurationCopy = originalConfiguration.toBuilder()
+                .build();
+        boolean moveExecuted = chessMoveService.executeMove(configurationCopy, ChessPosition.D1, ChessPosition.C3);
+        assertFalse(moveExecuted);
+        assertThat(configurationCopy).isEqualToComparingFieldByFieldRecursively(originalConfiguration);
+    }
+
+    @Test
+    void executeCheckMate() {
+        // assert game end (no available moves for acting side)
+        ChessPiece blackPawn = ChessPiece.builder()
+                .pieceType(ChessPieceType.PAWN)
+                .pieceColor(ChessPieceColor.BLACK)
+                .position(ChessPosition.H7)
+                .availablePositions(Stream.of(ChessPosition.H6, ChessPosition.H5)
+                        .collect(Collectors.toSet()))
+                .build();
+        ChessPiece blackPawn2 = ChessPiece.builder()
+                .pieceType(ChessPieceType.PAWN)
+                .pieceColor(ChessPieceColor.BLACK)
+                .position(ChessPosition.G7)
+                .availablePositions(Stream.of(ChessPosition.G6, ChessPosition.G5)
+                        .collect(Collectors.toSet()))
+                .build();
+        ChessPiece blackKnight = ChessPiece.builder()
+                .pieceType(ChessPieceType.KNIGHT)
+                .pieceColor(ChessPieceColor.BLACK)
+                .position(ChessPosition.G8)
+                .availablePositions(Stream.of(ChessPosition.E7, ChessPosition.F6, ChessPosition.H6)
+                        .collect(Collectors.toSet()))
+                .build();
+        ChessPiece blackKing = ChessPiece.builder()
+                .pieceType(ChessPieceType.KING)
+                .pieceColor(ChessPieceColor.BLACK)
+                .position(ChessPosition.H8)
+                .availablePositions(new HashSet<>())
+                .build();
+        ChessPiece whiteKnight = ChessPiece.builder()
+                .pieceType(ChessPieceType.KNIGHT)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPosition.H6)
+                .availablePositions(Stream.of(ChessPosition.F7, ChessPosition.F5, ChessPosition.G4)
+                        .collect(Collectors.toSet()))
+                .build();
+        ChessConfiguration configuration = ChessConfiguration.builder()
+                .whitePieces(Stream.of(whiteKnight)
+                        .collect(Collectors.toSet()))
+                .blackPieces(Stream.of(blackPawn, blackPawn2, blackKnight, blackKing)
+                        .collect(Collectors.toSet()))
+                .longCastlesBlack(false)
+                .longCastlesWhite(false)
+                .shortCastlesBlack(false)
+                .shortCastlesWhite(false)
+                .checkBlack(false)
+                .checkWhite(false)
+                .turnColor(ChessPieceColor.WHITE)
+                .build();
+        boolean moveExecuted = chessMoveService.executeMove(configuration, ChessPosition.H6, ChessPosition.F7);
+        assertTrue(moveExecuted);
+        assertThat(configuration).isCheckBlack();
+        assertThat(blackKing).hasNoAvailablePositions();
+        assertThat(blackPawn).hasNoAvailablePositions();
+        assertThat(blackPawn2).hasNoAvailablePositions();
+        assertThat(blackKnight).hasNoAvailablePositions();
+    }
+
+    @Test
+    void shortCastle() {
+        // TODO: 11.02.2021 assert short castle execution and short castle flag after execution
+    }
+
+    @Test
+    void longCastle() {
+        // TODO: 11.02.2021 assert long castle execution and long castle flag after execution
+    }
+
+    @Test
+    void enPassant() {
+        // TODO: 11.02.2021 assert en passant exection and flag after execution
     }
 
     @Test
