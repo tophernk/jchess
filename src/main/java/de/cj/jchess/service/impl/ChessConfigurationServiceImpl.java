@@ -7,7 +7,6 @@ import de.cj.jchess.service.ChessConfigurationService;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 @Service
