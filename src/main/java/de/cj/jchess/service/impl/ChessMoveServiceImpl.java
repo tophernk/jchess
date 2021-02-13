@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -40,20 +39,40 @@ public class ChessMoveServiceImpl implements ChessMoveService {
         performMove(configuration, to, pieceToMove);
         chessConfigurationSupport.updateAvailablePositions(configuration);
 
-        Set<ChessPiece> kings = retrieveKings(configuration);
-        for (ChessPiece king : kings) {
+        Optional<ChessPiece> whiteKing = retrieveKing(configuration, ChessPieceColor.WHITE);
+        Optional<ChessPiece> blackKing = retrieveKing(configuration, ChessPieceColor.BLACK);
+
+        whiteKing.ifPresent(king -> {
             boolean kingInCheck = isPieceUnderAttack(configuration, king);
             if (king.getPieceColor() == ChessPieceColor.WHITE) {
                 configuration.setCheckWhite(kingInCheck);
-            } else {
+            }
+        });
+        blackKing.ifPresent(king -> {
+            boolean kingInCheck = isPieceUnderAttack(configuration, king);
+            if (king.getPieceColor() == ChessPieceColor.BLACK) {
                 configuration.setCheckBlack(kingInCheck);
             }
-        }
+        });
 
         if ((activeColor == ChessPieceColor.WHITE && configuration.isCheckWhite()) || (activeColor == ChessPieceColor.BLACK && configuration.isCheckBlack())) {
             chessConfigurationMapper.copy(backup, configuration);
             return false;
         }
+
+        // remove king positions from available positions
+        blackKing.ifPresent(king -> {
+            for (ChessPiece piece : configuration.getWhitePieces()) {
+                piece.getAvailablePositions()
+                        .removeIf(p -> p == king.getPosition());
+            }
+        });
+        whiteKing.ifPresent(king -> {
+            for (ChessPiece piece : configuration.getBlackPieces()) {
+                piece.getAvailablePositions()
+                        .removeIf(p -> p == king.getPosition());
+            }
+        });
 
         ChessPieceColor oppositeColor = activeColor == ChessPieceColor.BLACK ? ChessPieceColor.WHITE : ChessPieceColor.BLACK;
         configuration.setTurnColor(oppositeColor);
@@ -71,16 +90,16 @@ public class ChessMoveServiceImpl implements ChessMoveService {
         if (pieceToMove == null || pieceToMove.getPieceColor() != activeColor) {
             return false;
         }
-        boolean toPositionAvailable = pieceToMove.getAvailablePositions()
+        return pieceToMove.getAvailablePositions()
                 .contains(to);
-        return toPositionAvailable;
     }
 
-    private Set<ChessPiece> retrieveKings(ChessConfiguration configuration) {
+    private Optional<ChessPiece> retrieveKing(ChessConfiguration configuration, ChessPieceColor color) {
         return Stream.of(configuration.getBlackPieces(), configuration.getWhitePieces())
                 .flatMap(Collection::stream)
                 .filter(p -> p.getPieceType() == ChessPieceType.KING)
-                .collect(Collectors.toSet());
+                .filter(p -> p.getPieceColor() == color)
+                .findAny();
     }
 
     private boolean isPieceUnderAttack(ChessConfiguration configuration, ChessPiece piece) {
