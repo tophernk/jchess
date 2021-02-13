@@ -3,6 +3,7 @@ package de.cj.jchess.service.impl;
 import de.cj.jchess.entity.*;
 import de.cj.jchess.service.ChessConfigurationService;
 import de.cj.jchess.service.ChessMoveService;
+import de.cj.jchess.service.mapper.ChessConfigurationMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ChessMoveServiceImpl implements ChessMoveService {
@@ -20,53 +23,72 @@ public class ChessMoveServiceImpl implements ChessMoveService {
     @Autowired
     private ChessConfigurationSupport chessConfigurationSupport;
 
+    @Autowired
+    private ChessConfigurationMapper chessConfigurationMapper;
+
     @Override
     public boolean executeMove(ChessConfiguration configuration, ChessPosition from, ChessPosition to) {
+        ChessConfiguration backup = configuration.toBuilder()
+                .build();
         ChessPiece pieceToMove = chessConfigurationService.findPieceAtPosition(configuration, from);
-        if (pieceToMove == null || pieceToMove.getPieceColor() != configuration.getTurnColor()) {
+        ChessPieceColor activeColor = configuration.getTurnColor();
+
+        if (!movePreconditionsFulfilled(to, pieceToMove, activeColor)) {
             return false;
         }
-        boolean toPositionAvailable = pieceToMove.getAvailablePositions()
-                .contains(to);
-        if (!toPositionAvailable) {
-            return false;
-        }
-        Optional.ofNullable(chessConfigurationService.findPieceAtPosition(configuration, to))
-                .ifPresent(removePiece(configuration));
-        pieceToMove.setPosition(to);
+
+        performMove(configuration, to, pieceToMove);
         chessConfigurationSupport.updateAvailablePositions(configuration);
 
-        ChessPiece kingToCheck = retrieveOpponentPieces(configuration).stream()
-                .filter(p -> p.getPieceType() == ChessPieceType.KING)
-                .findAny()
-                .orElse(null);
-
-        if (kingToCheck != null) {
-            boolean kingUnderAttack = isPositionUnderAttack(configuration, kingToCheck.getPosition(), configuration.getTurnColor());
-
-            if (configuration.getTurnColor() == ChessPieceColor.WHITE) {
-                configuration.setCheckBlack(kingUnderAttack);
+        Set<ChessPiece> kings = retrieveKings(configuration);
+        for (ChessPiece king : kings) {
+            boolean kingInCheck = isPieceUnderAttack(configuration, king);
+            if (king.getPieceColor() == ChessPieceColor.WHITE) {
+                configuration.setCheckWhite(kingInCheck);
             } else {
-                configuration.setCheckWhite(kingUnderAttack);
+                configuration.setCheckBlack(kingInCheck);
             }
         }
 
-        ChessPieceColor oppositeColor = configuration.getTurnColor() == ChessPieceColor.BLACK ? ChessPieceColor.WHITE : ChessPieceColor.BLACK;
+        if ((activeColor == ChessPieceColor.WHITE && configuration.isCheckWhite()) || (activeColor == ChessPieceColor.BLACK && configuration.isCheckBlack())) {
+            chessConfigurationMapper.copy(backup, configuration);
+            return false;
+        }
+
+        ChessPieceColor oppositeColor = activeColor == ChessPieceColor.BLACK ? ChessPieceColor.WHITE : ChessPieceColor.BLACK;
         configuration.setTurnColor(oppositeColor);
 
         return true;
     }
 
-    private Set<ChessPiece> retrieveOpponentPieces(ChessConfiguration configuration) {
-        return configuration.getTurnColor() == ChessPieceColor.WHITE ? configuration.getBlackPieces() : configuration.getWhitePieces();
+    private void performMove(ChessConfiguration configuration, ChessPosition to, ChessPiece pieceToMove) {
+        Optional.ofNullable(chessConfigurationService.findPieceAtPosition(configuration, to))
+                .ifPresent(removePiece(configuration));
+        pieceToMove.setPosition(to);
     }
 
-    private boolean isPositionUnderAttack(ChessConfiguration configuration, ChessPosition position, ChessPieceColor attackingColor) {
-        Set<ChessPiece> attackers = attackingColor == ChessPieceColor.WHITE ? configuration.getWhitePieces() : configuration.getBlackPieces();
+    private boolean movePreconditionsFulfilled(ChessPosition to, ChessPiece pieceToMove, ChessPieceColor activeColor) {
+        if (pieceToMove == null || pieceToMove.getPieceColor() != activeColor) {
+            return false;
+        }
+        boolean toPositionAvailable = pieceToMove.getAvailablePositions()
+                .contains(to);
+        return toPositionAvailable;
+    }
+
+    private Set<ChessPiece> retrieveKings(ChessConfiguration configuration) {
+        return Stream.of(configuration.getBlackPieces(), configuration.getWhitePieces())
+                .flatMap(Collection::stream)
+                .filter(p -> p.getPieceType() == ChessPieceType.KING)
+                .collect(Collectors.toSet());
+    }
+
+    private boolean isPieceUnderAttack(ChessConfiguration configuration, ChessPiece piece) {
+        Set<ChessPiece> attackers = piece.getPieceColor() == ChessPieceColor.WHITE ? configuration.getBlackPieces() : configuration.getWhitePieces();
         return attackers.stream()
                 .map(ChessPiece::getAvailablePositions)
                 .flatMap(Collection::stream)
-                .anyMatch(p -> p == position);
+                .anyMatch(p -> p == piece.getPosition());
     }
 
     private Consumer<ChessPiece> removePiece(ChessConfiguration configuration) {

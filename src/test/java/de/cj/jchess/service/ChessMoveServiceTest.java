@@ -4,11 +4,11 @@ import de.cj.jchess.entity.*;
 import de.cj.jchess.service.impl.ChessConfigurationServiceImpl;
 import de.cj.jchess.service.impl.ChessConfigurationSupport;
 import de.cj.jchess.service.impl.ChessMoveServiceImpl;
+import de.cj.jchess.service.mapper.ChessConfigurationMapperImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +19,7 @@ import static de.cj.jchess.entity.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringJUnitConfig(classes = {ChessMoveServiceImpl.class, ChessConfigurationServiceImpl.class, ChessConfigurationSupport.class})
+@SpringJUnitConfig(classes = {ChessMoveServiceImpl.class, ChessConfigurationServiceImpl.class, ChessConfigurationSupport.class, ChessConfigurationMapperImpl.class})
 class ChessMoveServiceTest {
 
     @Autowired
