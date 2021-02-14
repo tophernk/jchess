@@ -144,55 +144,6 @@ class ChessMoveServiceTest {
         assertThat(blackPawn).hasOnlyAvailablePositions(ChessPosition.D1);
     }
 
-    @Test
-    void preventMoveIntoCheck() {
-        // assert that a move which ends in a check for the moving color is not executed and that the config is not changed
-        ChessPiece blackPawn = ChessPiece.builder()
-                .pieceType(ChessPieceType.PAWN)
-                .pieceColor(ChessPieceColor.BLACK)
-                .position(ChessPosition.A2)
-                .availablePositions(new HashSet<>())
-                .build();
-        ChessPiece blackRook = ChessPiece.builder()
-                .pieceType(ChessPieceType.ROOK)
-                .pieceColor(ChessPieceColor.BLACK)
-                .position(ChessPosition.A1)
-                .availablePositions(Stream.of(ChessPosition.B1, ChessPosition.C1)
-                        .collect(Collectors.toSet()))
-                .build();
-        ChessPiece whiteKnight = ChessPiece.builder()
-                .pieceType(ChessPieceType.KNIGHT)
-                .pieceColor(ChessPieceColor.WHITE)
-                .position(ChessPosition.D1)
-                .availablePositions(Stream.of(ChessPosition.B2, ChessPosition.C3, ChessPosition.E3, ChessPosition.F2)
-                        .collect(Collectors.toSet()))
-                .build();
-        ChessPiece whiteKing = ChessPiece.builder()
-                .pieceType(ChessPieceType.KING)
-                .pieceColor(ChessPieceColor.WHITE)
-                .position(ChessPosition.E1)
-                .availablePositions(Stream.of(ChessPosition.D2, ChessPosition.E2, ChessPosition.F2, ChessPosition.F1)
-                        .collect(Collectors.toSet()))
-                .build();
-        ChessConfiguration originalConfiguration = ChessConfiguration.builder()
-                .whitePieces(Stream.of(whiteKing, whiteKnight)
-                        .collect(Collectors.toSet()))
-                .blackPieces(Stream.of(blackPawn, blackRook)
-                        .collect(Collectors.toSet()))
-                .longCastlesBlack(false)
-                .longCastlesWhite(false)
-                .shortCastlesBlack(false)
-                .shortCastlesWhite(false)
-                .checkBlack(false)
-                .checkWhite(false)
-                .turnColor(ChessPieceColor.WHITE)
-                .build();
-        ChessConfiguration configurationCopy = originalConfiguration.toBuilder()
-                .build();
-        boolean moveExecuted = chessMoveService.executeMove(configurationCopy, ChessPosition.D1, ChessPosition.C3);
-        assertFalse(moveExecuted);
-        assertThat(configurationCopy).isEqualToComparingFieldByFieldRecursively(originalConfiguration);
-    }
 
     @Test
     void executeCheckMate() {

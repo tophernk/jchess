@@ -28,6 +28,9 @@ public class ChessConfigurationSupport {
 
         Set<ChessPiece> pinnedPieces = determinePinnedPieces(configuration);
         piecesToUpdate.removeAll(pinnedPieces);
+        pinnedPieces.stream()
+                .map(ChessPiece::getAvailablePositions)
+                .forEach(Set::clear);
 
         for (ChessPiece pieceToMove : piecesToUpdate) {
             pieceToMove.getAvailablePositions()
@@ -111,15 +114,15 @@ public class ChessConfigurationSupport {
     }
 
     private Set<ChessPiece> determinePinnedPieces(ChessConfiguration configuration) {
-        Set<ChessPiece> whitePieces = configuration.getWhitePieces();
+        Set<ChessPiece> activeColorPieces = configuration.getTurnColor() == ChessPieceColor.WHITE ? configuration.getWhitePieces() : configuration.getBlackPieces();
 
         // determine all king lines: rank, file + 2 diagonals
-        ChessPiece whiteKing = whitePieces.stream()
+        ChessPiece king = activeColorPieces.stream()
                 .filter(p -> p.getPieceType() == ChessPieceType.KING)
                 .findAny()
                 .orElse(null);
 
-        return whiteKing != null ? retrievePinnedPieces(whiteKing, configuration) : Collections.emptySet();
+        return king != null ? retrievePinnedPieces(king, configuration) : Collections.emptySet();
     }
 
     Set<ChessPiece> retrievePinnedPieces(ChessPiece king, ChessConfiguration configuration) {
@@ -224,6 +227,35 @@ public class ChessConfigurationSupport {
             targetRank += rankOffset[i];
             addMoveIfAvailable(boardPieces, king, targetFile, targetRank);
         }
+
+        // remove targets that are under attack
+        king.getAvailablePositions()
+                .removeIf(p -> {
+                    Set<ChessPiece> attackers = king.getPieceColor() == ChessPieceColor.WHITE ? configuration.getBlackPieces() : configuration.getWhitePieces();
+                    boolean fieldUnderAttack = attackers.stream()
+                            // pawns require extra check as they can only take sideways but no pieces in front of them
+                            .filter(piece -> piece.getPieceType() != ChessPieceType.PAWN)
+                            .map(ChessPiece::getAvailablePositions)
+                            .flatMap(Collection::stream)
+                            .anyMatch(attackedPosition -> attackedPosition == p);
+                    if (fieldUnderAttack) {
+                        return true;
+                    }
+                    // check if pawns can attack king by extending their available field to both sides
+                    Set<ChessPiece> attackingPawns = attackers.stream()
+                            .filter(piece -> piece.getPieceType() == ChessPieceType.PAWN)
+                            .collect(Collectors.toSet());
+                    for (ChessPiece attackingPawn : attackingPawns) {
+                        boolean kingAttackedByPawn = attackingPawn.getAvailablePositions()
+                                .stream()
+                                .filter(position -> position.getRank() == p.getRank())
+                                .anyMatch(position -> ChessPosition.determineDistance(position, p) == 1);
+                        if (kingAttackedByPawn) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
 
         // test castles when in starting position
         int startingRank = king.getPieceColor() == ChessPieceColor.WHITE ? 1 : 8;

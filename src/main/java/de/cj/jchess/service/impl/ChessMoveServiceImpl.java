@@ -22,13 +22,8 @@ public class ChessMoveServiceImpl implements ChessMoveService {
     @Autowired
     private ChessConfigurationSupport chessConfigurationSupport;
 
-    @Autowired
-    private ChessConfigurationMapper chessConfigurationMapper;
-
     @Override
     public boolean executeMove(ChessConfiguration configuration, ChessPosition from, ChessPosition to) {
-        ChessConfiguration backup = configuration.toBuilder()
-                .build();
         ChessPiece pieceToMove = chessConfigurationService.findPieceAtPosition(configuration, from);
         ChessPieceColor activeColor = configuration.getTurnColor();
 
@@ -38,11 +33,6 @@ public class ChessMoveServiceImpl implements ChessMoveService {
 
         movePiece(configuration, to, pieceToMove);
         chessConfigurationSupport.updateAvailablePositions(configuration);
-
-        if ((activeColor == ChessPieceColor.WHITE && configuration.isCheckWhite()) || (activeColor == ChessPieceColor.BLACK && configuration.isCheckBlack())) {
-            chessConfigurationMapper.copy(backup, configuration);
-            return false;
-        }
 
         ChessPieceColor oppositeColor = activeColor == ChessPieceColor.BLACK ? ChessPieceColor.WHITE : ChessPieceColor.BLACK;
         configuration.setTurnColor(oppositeColor);
