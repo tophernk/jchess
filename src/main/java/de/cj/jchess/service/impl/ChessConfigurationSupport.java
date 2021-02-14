@@ -1,9 +1,13 @@
 package de.cj.jchess.service.impl;
 
 import de.cj.jchess.entity.*;
+import de.cj.jchess.service.ChessConfigurationService;
+import de.cj.jchess.service.mapper.ChessConfigurationMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,7 +25,58 @@ public class ChessConfigurationSupport {
     private static final EnumSet<ChessPosition> BLACK_LONG_CASTLE_CHECK_FIELDS = EnumSet.of(ChessPosition.A8, ChessPosition.B8, ChessPosition.C8,
             ChessPosition.D8);
 
+    @Autowired
+    private ChessConfigurationService chessConfigurationService;
+
+    @Autowired
+    private ChessConfigurationMapper chessConfigurationMapper;
+
     void updateAvailablePositions(ChessConfiguration configuration) {
+        updateAvailablePositionsWithoutEscapingCheck(configuration);
+        boolean providedCheck = configuration.getTurnColor() == ChessPieceColor.WHITE ? configuration.isCheckBlack() : configuration.isCheckWhite();
+        if (providedCheck) {
+            removePositionsThatDontEscapeCheck(configuration);
+        }
+    }
+
+    private void removePositionsThatDontEscapeCheck(ChessConfiguration configuration) {
+        Set<ChessPiece> piecesOfNextTurn = configuration.getTurnColor() == ChessPieceColor.WHITE ? configuration.getBlackPieces() : configuration.getWhitePieces();
+        ChessConfiguration tempConfiguration = chessConfigurationMapper.copy(configuration);
+
+        for (ChessPiece nextTurnPiece : piecesOfNextTurn) {
+            ChessPiece tmpPieceAtPosition = chessConfigurationService.findPieceAtPosition(tempConfiguration, nextTurnPiece.getPosition());
+            for (ChessPosition positionToCheck : tmpPieceAtPosition.getAvailablePositions()) {
+                tempConfiguration.setTurnColor(configuration.getTurnColor() == ChessPieceColor.WHITE ? ChessPieceColor.BLACK : ChessPieceColor.WHITE);
+                movePiece(tempConfiguration, positionToCheck, tmpPieceAtPosition);
+                boolean stillInCheck = tempConfiguration.getTurnColor() == ChessPieceColor.WHITE ? tempConfiguration.isCheckWhite() : tempConfiguration.isCheckBlack();
+                if (stillInCheck) {
+                    nextTurnPiece.getAvailablePositions()
+                            .remove(positionToCheck);
+                }
+                chessConfigurationMapper.copy(configuration, tempConfiguration);
+            }
+        }
+    }
+
+    void movePiece(ChessConfiguration configuration, ChessPosition to, ChessPiece pieceToMove) {
+        Optional.ofNullable(chessConfigurationService.findPieceAtPosition(configuration, to))
+                .ifPresent(removePiece(configuration));
+        pieceToMove.setPosition(to);
+    }
+
+    private Consumer<ChessPiece> removePiece(ChessConfiguration configuration) {
+        return p -> {
+            if (p.getPieceColor() == ChessPieceColor.BLACK) {
+                configuration.getBlackPieces()
+                        .remove(p);
+            } else {
+                configuration.getWhitePieces()
+                        .remove(p);
+            }
+        };
+    }
+
+    private void updateAvailablePositionsWithoutEscapingCheck(ChessConfiguration configuration) {
         Set<ChessPiece> piecesToUpdate = Stream.of(configuration.getWhitePieces(), configuration.getBlackPieces())
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
@@ -62,8 +117,6 @@ public class ChessConfigurationSupport {
         piecesToUpdate.stream()
                 .filter(p -> p.getPieceType() == ChessPieceType.KING)
                 .forEach(king -> determineKingMoves(king, piecesToUpdate, configuration));
-
-        // TODO: 14.02.2021 if given check, reduce available positions to check removing positions
 
         Optional<ChessPiece> whiteKing = retrieveKing(configuration, ChessPieceColor.WHITE);
         Optional<ChessPiece> blackKing = retrieveKing(configuration, ChessPieceColor.BLACK);

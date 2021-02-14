@@ -5,6 +5,7 @@ import de.cj.jchess.service.impl.ChessConfigurationServiceImpl;
 import de.cj.jchess.service.impl.ChessConfigurationSupport;
 import de.cj.jchess.service.impl.ChessMoveServiceImpl;
 import de.cj.jchess.service.mapper.ChessConfigurationMapperImpl;
+import de.cj.jchess.service.mapper.ChessPieceMapperImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -16,10 +17,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static de.cj.jchess.entity.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringJUnitConfig(classes = {ChessMoveServiceImpl.class, ChessConfigurationServiceImpl.class, ChessConfigurationSupport.class, ChessConfigurationMapperImpl.class})
+@SpringJUnitConfig(classes = {ChessMoveServiceImpl.class, ChessConfigurationServiceImpl.class, ChessConfigurationSupport.class, ChessConfigurationMapperImpl.class, ChessPieceMapperImpl.class})
 class ChessMoveServiceTest {
 
     @Autowired

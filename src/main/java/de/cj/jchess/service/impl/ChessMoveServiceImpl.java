@@ -31,7 +31,7 @@ public class ChessMoveServiceImpl implements ChessMoveService {
             return false;
         }
 
-        movePiece(configuration, to, pieceToMove);
+        chessConfigurationSupport.movePiece(configuration, to, pieceToMove);
         chessConfigurationSupport.updateAvailablePositions(configuration);
 
         ChessPieceColor oppositeColor = activeColor == ChessPieceColor.BLACK ? ChessPieceColor.WHITE : ChessPieceColor.BLACK;
@@ -40,30 +40,12 @@ public class ChessMoveServiceImpl implements ChessMoveService {
         return true;
     }
 
-    private void movePiece(ChessConfiguration configuration, ChessPosition to, ChessPiece pieceToMove) {
-        Optional.ofNullable(chessConfigurationService.findPieceAtPosition(configuration, to))
-                .ifPresent(removePiece(configuration));
-        pieceToMove.setPosition(to);
-    }
-
     private boolean movePreconditionsFulfilled(ChessPosition to, ChessPiece pieceToMove, ChessPieceColor activeColor) {
         if (pieceToMove == null || pieceToMove.getPieceColor() != activeColor) {
             return false;
         }
         return pieceToMove.getAvailablePositions()
                 .contains(to);
-    }
-
-    private Consumer<ChessPiece> removePiece(ChessConfiguration configuration) {
-        return p -> {
-            if (p.getPieceColor() == ChessPieceColor.BLACK) {
-                configuration.getBlackPieces()
-                        .remove(p);
-            } else {
-                configuration.getWhitePieces()
-                        .remove(p);
-            }
-        };
     }
 
     @Override
