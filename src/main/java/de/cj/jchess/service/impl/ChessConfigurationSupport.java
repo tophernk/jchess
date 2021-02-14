@@ -59,6 +59,55 @@ public class ChessConfigurationSupport {
         piecesToUpdate.stream()
                 .filter(p -> p.getPieceType() == ChessPieceType.KING)
                 .forEach(king -> determineKingMoves(king, piecesToUpdate, configuration));
+
+        // TODO: 14.02.2021 if given check, reduce available positions to check removing positions
+
+        Optional<ChessPiece> whiteKing = retrieveKing(configuration, ChessPieceColor.WHITE);
+        Optional<ChessPiece> blackKing = retrieveKing(configuration, ChessPieceColor.BLACK);
+
+        whiteKing.ifPresent(king -> {
+            boolean kingInCheck = isPieceUnderAttack(configuration, king);
+            if (king.getPieceColor() == ChessPieceColor.WHITE) {
+                configuration.setCheckWhite(kingInCheck);
+            }
+        });
+        blackKing.ifPresent(king -> {
+            boolean kingInCheck = isPieceUnderAttack(configuration, king);
+            if (king.getPieceColor() == ChessPieceColor.BLACK) {
+                configuration.setCheckBlack(kingInCheck);
+            }
+        });
+
+        // remove king positions from available positions
+        blackKing.ifPresent(king -> {
+            for (ChessPiece piece : configuration.getWhitePieces()) {
+                piece.getAvailablePositions()
+                        .removeIf(p -> p == king.getPosition());
+            }
+        });
+
+        retrieveKing(configuration, ChessPieceColor.WHITE).ifPresent(king -> {
+            for (ChessPiece piece : configuration.getBlackPieces()) {
+                piece.getAvailablePositions()
+                        .removeIf(p -> p == king.getPosition());
+            }
+        });
+    }
+
+    private boolean isPieceUnderAttack(ChessConfiguration configuration, ChessPiece piece) {
+        Set<ChessPiece> attackers = piece.getPieceColor() == ChessPieceColor.WHITE ? configuration.getBlackPieces() : configuration.getWhitePieces();
+        return attackers.stream()
+                .map(ChessPiece::getAvailablePositions)
+                .flatMap(Collection::stream)
+                .anyMatch(p -> p == piece.getPosition());
+    }
+
+    private Optional<ChessPiece> retrieveKing(ChessConfiguration configuration, ChessPieceColor color) {
+        return Stream.of(configuration.getBlackPieces(), configuration.getWhitePieces())
+                .flatMap(Collection::stream)
+                .filter(p -> p.getPieceType() == ChessPieceType.KING)
+                .filter(p -> p.getPieceColor() == color)
+                .findAny();
     }
 
     private Set<ChessPiece> determinePinnedPieces(ChessConfiguration configuration) {
