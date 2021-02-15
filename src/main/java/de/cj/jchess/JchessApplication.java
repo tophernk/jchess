@@ -1,11 +1,14 @@
 package de.cj.jchess;
 
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import de.cj.jchess.dao.JpaChessPieceRepository;
 import de.cj.jchess.entity.ChessPieceColor;
 import de.cj.jchess.entity.ChessPieceType;
 import de.cj.jchess.entity.JpaChessPiece;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,4 +37,14 @@ public class JchessApplication {
         };
     }
 
+    @Value("${spring.datasource.username}")
+    private String username;
+
+    @Value("${spring.datasource.password}")
+    private String password;
+
+    @Bean
+    public MongoClient mongoClient() {
+        return MongoClients.create("mongodb://" + username + ":" + password + "@localhost:27017");
+    }
 }
