@@ -206,12 +206,78 @@ class ChessMoveServiceTest {
 
     @Test
     void shortCastle() {
-        // TODO: 11.02.2021 assert short castle execution and short castle flag after execution
+        ChessPiece whitePawn = ChessPiece.builder()
+                .pieceType(ChessPieceType.PAWN)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPosition.H2)
+                .availablePositions(Stream.of(ChessPosition.H3, ChessPosition.H4)
+                        .collect(Collectors.toSet()))
+                .build();
+        ChessPiece whiteRook = ChessPiece.builder()
+                .pieceType(ChessPieceType.ROOK)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPosition.H1)
+                .availablePositions(Stream.of(ChessPosition.F1, ChessPosition.G1)
+                        .collect(Collectors.toSet()))
+                .build();
+        ChessPiece whiteKing = ChessPiece.builder()
+                .pieceType(ChessPieceType.KING)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPosition.E1)
+                .availablePositions(Stream.of(ChessPosition.D1, ChessPosition.D2, ChessPosition.E2, ChessPosition.F2, ChessPosition.F1, ChessPosition.G1)
+                        .collect(Collectors.toSet()))
+                .build();
+        ChessConfiguration configuration = ChessConfiguration.builder()
+                .turnColor(ChessPieceColor.WHITE)
+                .whitePieces(Stream.of(whiteRook, whiteKing, whitePawn)
+                        .collect(Collectors.toSet()))
+                .blackPieces(new HashSet<>())
+                .shortCastlesWhite(true)
+                .build();
+        chessMoveService.executeMove(configuration, ChessPosition.E1, ChessPosition.G1);
+
+        assertThat(configuration).isNotShortCastlesWhite();
+        assertThat(whiteKing).hasPosition(ChessPosition.G1)
+                .hasOnlyAvailablePositions(Set.of(ChessPosition.F2, ChessPosition.G2, ChessPosition.H1));
+        assertThat(whiteRook).hasPosition(ChessPosition.F1);
     }
 
     @Test
     void longCastle() {
-        // TODO: 11.02.2021 assert long castle execution and long castle flag after execution
+        ChessPiece whitePawn = ChessPiece.builder()
+                .pieceType(ChessPieceType.PAWN)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPosition.A2)
+                .availablePositions(Stream.of(ChessPosition.A3, ChessPosition.A4)
+                        .collect(Collectors.toSet()))
+                .build();
+        ChessPiece whiteRook = ChessPiece.builder()
+                .pieceType(ChessPieceType.ROOK)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPosition.A1)
+                .availablePositions(Stream.of(ChessPosition.B1, ChessPosition.C1, ChessPosition.D1)
+                        .collect(Collectors.toSet()))
+                .build();
+        ChessPiece whiteKing = ChessPiece.builder()
+                .pieceType(ChessPieceType.KING)
+                .pieceColor(ChessPieceColor.WHITE)
+                .position(ChessPosition.E1)
+                .availablePositions(Stream.of(ChessPosition.D1, ChessPosition.D2, ChessPosition.E2, ChessPosition.F2, ChessPosition.F1, ChessPosition.G1)
+                        .collect(Collectors.toSet()))
+                .build();
+        ChessConfiguration configuration = ChessConfiguration.builder()
+                .turnColor(ChessPieceColor.WHITE)
+                .whitePieces(Stream.of(whiteRook, whiteKing, whitePawn)
+                        .collect(Collectors.toSet()))
+                .blackPieces(new HashSet<>())
+                .longCastlesWhite(true)
+                .build();
+        chessMoveService.executeMove(configuration, ChessPosition.E1, ChessPosition.C1);
+
+        assertThat(configuration).isNotLongCastlesWhite();
+        assertThat(whiteKing).hasPosition(ChessPosition.C1)
+                .hasOnlyAvailablePositions(Set.of(ChessPosition.B1, ChessPosition.B2, ChessPosition.C2, ChessPosition.D2));
+        assertThat(whiteRook).hasPosition(ChessPosition.D1);
     }
 
     @Test
